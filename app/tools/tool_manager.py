@@ -5,6 +5,7 @@ from typing import Callable, List, Union
 
 import akshare as ak
 from langchain.tools import Tool
+from pydantic import BaseModel
 
 from app.core.service import BaseService
 from app.core.singleton import Singleton
@@ -130,12 +131,26 @@ class ToolManager(BaseService[ToolDatastore, ToolModel], metaclass=Singleton):
                 tool_config = self.datastore.get_tool(doc.metadata["_id"])
                 if not tool_config:
                     continue
+                module_path, func_name = tool_config.function_path.rsplit(".", 1)
+                module = importlib.import_module(module_path)
+                func = getattr(module, func_name)
+                # 创建动态参数模型
+                params = inspect.signature(func).parameters
+                model_fields = {}
+                for name, param in params.items():
+                    field_type = param.annotation if param.annotation else str
+                    model_fields[name] = field_type
 
+                model_name = f"{tool_config.name}Parameters"
+                args_schema = type(model_name, (BaseModel,), {
+                    "__annotations__": model_fields,
+                    })
                 # 创建工具实例
                 tool = Tool(
                     name=tool_config.name,
                     description=tool_config.description,
                     func=self._create_tool_function(tool_config),
+                    args_schema=args_schema
                 )
                 tools.append(tool)
 
