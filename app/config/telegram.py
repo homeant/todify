@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic.v1 import BaseSettings
 
 class TelegramSettings(BaseSettings):
     """Telegram配置"""
