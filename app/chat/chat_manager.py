@@ -1,21 +1,15 @@
-import io
 import json
 import logging
 import uuid
-from typing import AsyncGenerator, List, Literal, TypedDict
+from typing import AsyncGenerator, Literal
 
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables.graph import MermaidDrawMethod
 from langchain_core.tools import Tool
 from langchain_openai.chat_models.base import BaseChatOpenAI
-from langgraph.constants import END
 from langgraph.graph import MessagesState, StateGraph
 from langgraph.graph.graph import CompiledGraph
-from langgraph.graph.state import CompiledStateGraph
-from langgraph.managed import IsLastStep
-from langgraph.prebuilt import ToolNode, create_react_agent
-from PIL import Image
+from langgraph.prebuilt import create_react_agent
 
 from app.chat.schemas import (
     ChatCompletionRequest,
@@ -28,13 +22,7 @@ from app.chat.stock_workflow import StockWorkflow
 from app.core.singleton import Singleton
 from app.setting import settings
 from app.tools.tool_manager import ToolManager
-from app.utils.date import (
-    SIMPLE_FORMAT,
-    format_date,
-    format_now,
-    get_last_trade_date,
-    get_now_millis,
-)
+from app.utils.date import format_now, get_now_millis
 
 logger = logging.getLogger(__name__)
 

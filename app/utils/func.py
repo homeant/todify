@@ -8,11 +8,12 @@ def format_doc(func):
 
     return remove_urls(enhanced_doc)
 
+
 def remove_urls(text: str) -> str:
     # 更新的正则表达式，可以匹配包括路径在内的所有网址
-    url_pattern = r'http[s]?://\S+'
+    url_pattern = r"http[s]?://\S+"
     # 替换网址为空字符串
-    return re.sub(url_pattern, '', text)
+    return re.sub(url_pattern, "", text)
 
 
 def format_parameters(sig: inspect.Signature) -> str:

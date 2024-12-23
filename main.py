@@ -1,4 +1,8 @@
+from datetime import datetime
+
+from apscheduler.triggers.interval import IntervalTrigger
 from fastapi import APIRouter, FastAPI
+from starlette.types import ASGIApp
 
 from app.api.auth import router as auth_router
 from app.api.chat import router as chat_router
@@ -6,6 +10,7 @@ from app.api.user import router as user_router
 from app.core.database import engine
 from app.core.datastore import Base
 from app.logger import setup_logging
+
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
@@ -17,6 +22,7 @@ setup_logging(file_path)
 
 
 app = FastAPI()
+
 
 router = APIRouter(prefix="/api/v1")
 

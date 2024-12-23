@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional
 
-from langchain_core.language_models import LanguageModelInput, BaseChatModel
+from langchain_core.language_models import BaseChatModel, LanguageModelInput
 from langchain_core.messages import AIMessage, BaseMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableConfig
@@ -18,12 +18,7 @@ from app.chat._workflow import acall_model
 from app.core.singleton import Singleton
 from app.setting import settings
 from app.tools.tool_manager import ToolManager
-from app.utils.date import (
-    SIMPLE_FORMAT,
-    format_date,
-    format_now,
-    get_last_trade_date,
-)
+from app.utils.date import SIMPLE_FORMAT, format_date, format_now, get_last_trade_date
 
 logger = logging.getLogger(__name__)
 
@@ -34,12 +29,15 @@ STOCK_PROMPT = """你是一个专业的股票分析师，你能根据用户提�
 
 class Keywords(BaseModel):
     """Answer with at least 5 keywords that you think are related to the topic"""
+
     keys: list = Field(description="list of at least 5 keywords related to the topic")
+
 
 class StockState(AgentState):
     today: str
     last_trade_date: str
     keywords: list[str]
+
 
 class StockWorkflow(metaclass=Singleton):
     def __init__(self, tool_manager: ToolManager):
@@ -47,7 +45,9 @@ class StockWorkflow(metaclass=Singleton):
 
     @classmethod
     def _get_model(
-        cls, tools: List[Tool] = None, schema: Optional[_DictOrPydanticClass] = None,
+        cls,
+        tools: List[Tool] = None,
+        schema: Optional[_DictOrPydanticClass] = None,
     ) -> Runnable[LanguageModelInput, BaseMessage] | BaseChatModel:
         model = BaseChatOpenAI(
             model_name="Qwen/Qwen2.5-32B-Instruct",
@@ -62,10 +62,11 @@ class StockWorkflow(metaclass=Singleton):
             return model.with_structured_output(schema)
         return model
 
-    async def _agent_handler(self, state: StockState, config: RunnableConfig) -> AgentState:
+    async def _agent_handler(
+        self, state: StockState, config: RunnableConfig
+    ) -> AgentState:
         model = self._get_model()
         return await acall_model(model, state, config)
-
 
     def get_stock_graph(self) -> CompiledGraph:
         workflow = StateGraph(StockState)
@@ -82,48 +83,44 @@ class StockWorkflow(metaclass=Singleton):
 
     @classmethod
     def _router_choose_tool(cls, state: StockState, config: RunnableConfig) -> str:
-        message = state.get('messages')[-1]
+        message = state.get("messages")[-1]
         if isinstance(message, AIMessage) and message.tool_calls:
             return "call_tool_agent"
         return "__end__"
 
     def _call_tool(self, state: StockState, config: RunnableConfig) -> StockState:
-        message = state.get('messages')[-1]
+        message = state.get("messages")[-1]
         tools = []
         for call in message.tool_calls:
-            tool = self.tool_manager.get_tool("akshare", call['name'])
+            tool = self.tool_manager.get_tool("akshare", call["name"])
             if tool:
                 tools.append(tool)
-        return ToolNode(tools).invoke({"messages": state['messages']}, config)
-
+        return ToolNode(tools).invoke({"messages": state["messages"]}, config)
 
     def _choose_tool(self, state: StockState, config: RunnableConfig) -> StockState:
-        tools = self.tool_manager.search_and_create_tools(state['keywords'])
+        tools = self.tool_manager.search_and_create_tools(state["keywords"])
         prompt = ChatPromptTemplate.from_messages(
-            [
-                STOCK_PROMPT,
-                ("placeholder", "{messages}")
-            ]
+            [STOCK_PROMPT, ("placeholder", "{messages}")]
         )
         runnable = prompt | self._get_model(tools=tools)
-        response = runnable.invoke({
-            "messages": state['messages'],
-            "today": format_now(SIMPLE_FORMAT),
-            "last_trade_date": format_date(get_last_trade_date(), SIMPLE_FORMAT),
-        })
+        response = runnable.invoke(
+            {
+                "messages": state["messages"],
+                "today": format_now(SIMPLE_FORMAT),
+                "last_trade_date": format_date(get_last_trade_date(), SIMPLE_FORMAT),
+            }
+        )
         return {"messages": [response]}
-
 
     def _get_keywords(self, state: StockState):
         prompt = ChatPromptTemplate.from_messages(
             [
-                SystemMessage(content="你的任务是根据用户输入的问题，分析应该使用 akshare 哪些工具，提供5个关键词"),
-                ("placeholder", "{messages}")
+                SystemMessage(
+                    content="你的任务是根据用户输入的问题，分析应该使用 akshare 哪些工具，提供5个关键词"
+                ),
+                ("placeholder", "{messages}"),
             ]
         )
         runnable = prompt | self._get_model(schema=Keywords)
-        message = runnable.invoke({
-            "messages": state['messages']
-        })
-        return {'keywords': message.keys}
-
+        message = runnable.invoke({"messages": state["messages"]})
+        return {"keywords": message.keys}

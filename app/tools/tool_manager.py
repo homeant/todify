@@ -103,7 +103,9 @@ class ToolManager(BaseService[ToolDatastore, ToolModel], metaclass=Singleton):
 
         return wrapper
 
-    def search_and_create_tools(self, query: Union[str, list[str]], top_k: int = 5) -> List[Tool]:
+    def search_and_create_tools(
+        self, query: Union[str, list[str]], top_k: int = 5
+    ) -> List[Tool]:
         """根据用户问题搜索并创建相关工具
 
         Args:
@@ -122,9 +124,9 @@ class ToolManager(BaseService[ToolDatastore, ToolModel], metaclass=Singleton):
                 ids = []
                 for q in query:
                     for result in self._vector_store.search(q, top_k):
-                        if result.metadata.get('_id') not in ids:
+                        if result.metadata.get("_id") not in ids:
                             results.append(result)
-                            ids.append(result.metadata.get('_id'))
+                            ids.append(result.metadata.get("_id"))
             tools = []
             for doc in results:
                 # 获取工具配置
@@ -142,15 +144,19 @@ class ToolManager(BaseService[ToolDatastore, ToolModel], metaclass=Singleton):
                     model_fields[name] = field_type
 
                 model_name = f"{tool_config.name}Parameters"
-                args_schema = type(model_name, (BaseModel,), {
-                    "__annotations__": model_fields,
-                    })
+                args_schema = type(
+                    model_name,
+                    (BaseModel,),
+                    {
+                        "__annotations__": model_fields,
+                    },
+                )
                 # 创建工具实例
                 tool = Tool(
                     name=tool_config.name,
                     description=tool_config.description,
                     func=self._create_tool_function(tool_config),
-                    args_schema=args_schema
+                    args_schema=args_schema,
                 )
                 tools.append(tool)
 
