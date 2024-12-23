@@ -134,3 +134,17 @@ class StockIndicator(Base):
     ama = Column(Numeric(10, 2), comment="AMA值")
 
     created_at = Column(BigInteger, default=get_now_millis())
+
+
+class StockSignal(Base):
+    """股票交易信号"""
+    __tablename__ = "cn_stock_signal"
+    
+    id = Column(BigInteger, primary_key=True, index=True)
+    code = Column(String(10), index=True, nullable=False, comment="股票代码")
+    name = Column(String(100), nullable=False, comment="股票名称")
+    trade_date = Column(Date, index=True, nullable=False, comment="交易日期")
+    strategy = Column(String(50), nullable=False, comment="策略名称")
+    signal_type = Column(String(10), nullable=False, comment="信号类型(buy/sell)")
+    signal_desc = Column(String(200), comment="信号描述")
+    created_at = Column(BigInteger, default=get_now_millis())
