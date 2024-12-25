@@ -2,9 +2,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from app.stock.data_service import StockDataService
 from app.strategy.base import BaseStrategy
-from app.utils.indicator import calculate_rsi
 
 
 class RSIStrategy(BaseStrategy):

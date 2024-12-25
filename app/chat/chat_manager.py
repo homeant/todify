@@ -9,7 +9,7 @@ from langchain_core.tools import Tool
 from langchain_openai.chat_models.base import BaseChatOpenAI
 from langgraph.graph import MessagesState, StateGraph
 from langgraph.graph.graph import CompiledGraph
-from langgraph.prebuilt import create_react_agent
+from langgraph.managed import IsLastStep
 
 from app.chat.schemas import (
     ChatCompletionRequest,
@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 class State(MessagesState):
     category: str
+    is_last_step: IsLastStep
 
 
 class ChatManager(metaclass=Singleton):
@@ -48,9 +49,6 @@ class ChatManager(metaclass=Singleton):
         )
 
     def get_work_flow(self) -> CompiledGraph:
-        model = self.agent_model
-        workflow = create_react_agent(model, [], interrupt_before=["agent"])
-
         def categorize(state: State) -> State:
             """Categorize the customer query into Technical, Billing, or General."""
             prompt = ChatPromptTemplate.from_template(
@@ -72,6 +70,12 @@ class ChatManager(metaclass=Singleton):
             return state
 
         stock_workflow = self.stock_workflow.get_stock_graph()
+
+        # tools = [
+        #     stock_lhb_hyyyb_em,
+        #     stock_lhb_detail_em
+        # ]
+        # stock_workflow = create_react_agent(self.agent_model, tools=tools, state_schema=State, debug=True, state_modifier="请根据用户问题，选择不同的工具，解决用户的问题")
         builder = StateGraph(State)
         builder.add_node("switch_agent", categorize)
         builder.add_node("stock_agent", stock_workflow)
@@ -154,7 +158,7 @@ class ChatManager(metaclass=Singleton):
     ) -> dict:
         """创建符合OpenAI格式的流式响应"""
         return {
-            "id": f"chatcmpl-{uuid.uuid4()}",
+            "id": f"{message.id}",
             "object": "chat.completion.chunk",
             "created": get_now_millis(),
             "model": "Qwen2.5-32B-Instruct",

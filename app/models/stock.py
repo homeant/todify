@@ -138,8 +138,9 @@ class StockIndicator(Base):
 
 class StockSignal(Base):
     """股票交易信号"""
+
     __tablename__ = "cn_stock_signal"
-    
+
     id = Column(BigInteger, primary_key=True, index=True)
     code = Column(String(10), index=True, nullable=False, comment="股票代码")
     name = Column(String(100), nullable=False, comment="股票名称")

@@ -1,11 +1,12 @@
 import importlib
 import inspect
 import logging
+from functools import wraps
 from typing import Callable, List, Union
 
 import akshare as ak
 from langchain.tools import Tool
-from pydantic import BaseModel
+from langchain_core.tools import StructuredTool
 
 from app.core.service import BaseService
 from app.core.singleton import Singleton
@@ -78,18 +79,14 @@ class ToolManager(BaseService[ToolDatastore, ToolModel], metaclass=Singleton):
             logger.error(f"保存工具到向量数据库失败: {str(e)}")
             raise
 
-    @classmethod
-    def _create_tool_function(cls, tool_config: ToolModel) -> Callable:
+    def _create_tool_function(self, tool_config: ToolModel) -> Callable:
         """为工具创建包装函数"""
+        func = self._get_tool_func(tool_config)
 
+        @wraps(func)
         def wrapper(*args, **kwargs):
             try:
-                # 动态导入并调用函数
-                logger.info(f"调用工具: {tool_config.name}, 参数: {args}, {kwargs}")
-                module_path, func_name = tool_config.function_path.rsplit(".", 1)
-                module = importlib.import_module(module_path)
-                func = getattr(module, func_name)
-
+                logger.info(f"调用工具: {tool_config.name}, 参数: {kwargs}")
                 result = func(*args, **kwargs)
                 if hasattr(result, "to_markdown"):
                     if len(result) > 100:
@@ -133,30 +130,11 @@ class ToolManager(BaseService[ToolDatastore, ToolModel], metaclass=Singleton):
                 tool_config = self.datastore.get_tool(doc.metadata["_id"])
                 if not tool_config:
                     continue
-                module_path, func_name = tool_config.function_path.rsplit(".", 1)
-                module = importlib.import_module(module_path)
-                func = getattr(module, func_name)
-                # 创建动态参数模型
-                params = inspect.signature(func).parameters
-                model_fields = {}
-                for name, param in params.items():
-                    field_type = param.annotation if param.annotation else str
-                    model_fields[name] = field_type
-
-                model_name = f"{tool_config.name}Parameters"
-                args_schema = type(
-                    model_name,
-                    (BaseModel,),
-                    {
-                        "__annotations__": model_fields,
-                    },
-                )
                 # 创建工具实例
-                tool = Tool(
+                tool = StructuredTool.from_function(
                     name=tool_config.name,
                     description=tool_config.description,
                     func=self._create_tool_function(tool_config),
-                    args_schema=args_schema,
                 )
                 tools.append(tool)
 
@@ -170,9 +148,16 @@ class ToolManager(BaseService[ToolDatastore, ToolModel], metaclass=Singleton):
         """根据工具类型和名称获取工具实例"""
         tool_config = self.datastore.get_tool_by_type_and_name(tool_type, name)
         if tool_config:
-            return Tool(
+            return StructuredTool.from_function(
                 name=tool_config.name,
                 description=tool_config.description,
                 func=self._create_tool_function(tool_config),
             )
         return None
+
+    @classmethod
+    def _get_tool_func(cls, tool_config: ToolModel) -> Callable:
+        module_path, func_name = tool_config.function_path.rsplit(".", 1)
+        module = importlib.import_module(module_path)
+        func = getattr(module, func_name)
+        return func
