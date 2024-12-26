@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from app.stock.data_service import StockDataService
+from app.stock.service import StockService
 from app.strategy.base import BaseStrategy
 
 
@@ -11,7 +11,7 @@ class ComboStrategy(BaseStrategy):
 
     def __init__(self):
         super().__init__(name="多指标组合", description="MACD金叉+KDJ超卖+成交量放大")
-        self.service = StockDataService()
+        self.service = StockService()
         self.volume_ratio = 2  # 成交量放大倍数
         self.kdj_oversold = 20  # KDJ超卖阈值
 

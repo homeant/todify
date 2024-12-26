@@ -6,6 +6,7 @@ from chinese_calendar import is_workday
 
 DEFAULT_FORMAT = "YYYY-MM-DD HH:mm:ss"
 SIMPLE_FORMAT = "YYYY-MM-DD"
+SHORT_DATE_FORMAT = "YYYYMMDD"
 
 
 def get_now_millis():

@@ -2,11 +2,12 @@ from typing import Optional
 
 from sqlalchemy import select
 
+from app.core.database import Base
 from app.core.datastore import BaseDatastore
 from app.models.stock import StockBlockTrade, StockDaily, StockIndicator, StockLhb
 
 
-class StockDatastore(BaseDatastore[StockDaily]):
+class StockDatastore(BaseDatastore[Base]):
 
     def get_stock_by_code_and_date(self, code: str, date: str) -> StockDaily:
         """根据股票代码和日期获取数据"""

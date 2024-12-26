@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from app.stock.data_service import StockDataService
+from app.stock.service import StockService
 from app.strategy.base import BaseStrategy
 
 
@@ -11,7 +11,7 @@ class CCIStrategy(BaseStrategy):
 
     def __init__(self):
         super().__init__(name="CCI超买超卖", description="CCI超卖买入,超买卖出")
-        self.service = StockDataService()
+        self.service = StockService()
         self.oversold = -100  # 超卖阈值
         self.overbought = 100  # 超买阈值
 

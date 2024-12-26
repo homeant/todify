@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from app.stock.data_service import StockDataService
+from app.stock.service import StockService
 from app.strategy.base import BaseStrategy
 
 
@@ -13,7 +13,7 @@ class DMIStrategy(BaseStrategy):
         super().__init__(
             name="DMI趋势", description="PDI上穿MDI买入,下穿卖出,ADX确认趋势"
         )
-        self.service = StockDataService()
+        self.service = StockService()
         self.adx_threshold = 25  # ADX趋势确认阈值
 
     def analyze(self, data: pd.DataFrame) -> List[str]:

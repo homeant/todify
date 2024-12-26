@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from app.stock.data_service import StockDataService
+from app.stock.service import StockService
 
 
 class BaseStrategy(ABC):
@@ -12,7 +12,7 @@ class BaseStrategy(ABC):
     def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
-        self.service = StockDataService()
+        self.service = StockService()
 
     async def get_stock_data(
         self, code: str, date: Optional[str] = None
