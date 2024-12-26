@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 
 from app.chat._workflow import acall_model
 from app.core.singleton import Singleton
-from app.setting import settings
+from app.config.setting import settings
 from app.tools.tool_manager import ToolManager
 from app.utils.date import SIMPLE_FORMAT, format_date, format_now, get_last_trade_date
 

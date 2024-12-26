@@ -3,6 +3,7 @@ from fastapi import APIRouter, FastAPI
 from app.api.auth import router as auth_router
 from app.api.chat import router as chat_router
 from app.api.user import router as user_router
+from app.core.celery_app import init_celery_app
 from app.core.database import engine
 from app.core.datastore import Base
 from app.logger import setup_logging
@@ -18,6 +19,7 @@ setup_logging(file_path)
 
 app = FastAPI()
 
+celery_app = init_celery_app()
 
 router = APIRouter(prefix="/api/v1")
 

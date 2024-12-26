@@ -20,7 +20,7 @@ from app.chat.schemas import (
 )
 from app.chat.stock_workflow import StockWorkflow
 from app.core.singleton import Singleton
-from app.setting import settings
+from app.config.setting import settings
 from app.tools.tool_manager import ToolManager
 from app.utils.date import format_now, get_now_millis
 

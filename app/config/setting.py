@@ -1,9 +1,7 @@
-import os
-
-from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings(BaseModel):
+class Settings(BaseSettings):
 
     database_url: str = "mysql+mysqldb://codly_test:123456@192.168.2.10/codly_test_db"
     jwt_secret: str
@@ -21,9 +19,8 @@ class Settings(BaseModel):
     qdrant_url: str
     qdrant_api_key: str
 
-    class Config:
-        env_file = "dev.env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+    )
 
 
-settings = Settings.model_validate(os.environ)
+settings = Settings()

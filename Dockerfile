@@ -16,7 +16,7 @@ RUN sh
 RUN poetry config virtualenvs.create false
 
 # 安装项目依赖
-RUN poetry install --no-dev --no-interaction --no-ansi
+RUN poetry install
 
 # 暴露端口
 EXPOSE 8080

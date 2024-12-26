@@ -5,7 +5,7 @@ from starlette import status
 
 from app.auth.schemas import AuthToken
 from app.core.security import create_access_token, verify_password
-from app.setting import settings
+from app.config.setting import settings
 from app.user.schemas import UserLogin
 from app.user.service import UserService
 

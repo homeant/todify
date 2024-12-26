@@ -3,7 +3,7 @@ from typing import Optional
 
 import aiohttp
 
-from app.config.telegram import TelegramSettings
+from app.config.telegram import settings
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ class TelegramBot:
     """Telegram机器人"""
 
     def __init__(self):
-        self.settings = TelegramSettings()
+        self.settings = settings
         self.api_url = f"https://api.telegram.org/bot{self.settings.bot_token}"
 
     async def send_message(self, text: str, parse_mode: Optional[str] = "HTML") -> bool:

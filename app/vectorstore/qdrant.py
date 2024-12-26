@@ -6,7 +6,7 @@ from langchain_qdrant import QdrantVectorStore as Lc_QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 
-from app.setting import settings
+from app.config.setting import settings
 from app.vectorstore._vectorstore import VectorStore
 
 logger = logging.getLogger(__name__)

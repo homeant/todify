@@ -1,4 +1,5 @@
-from pydantic.v1 import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 
 class TelegramSettings(BaseSettings):
@@ -7,5 +8,8 @@ class TelegramSettings(BaseSettings):
     bot_token: str = ""  # Bot Token
     chat_id: str = ""  # 群组ID
 
-    class Config:
-        env_prefix = "TELEGRAM_"  # 环境变量前缀 TELEGRAM_BOT_TOKEN
+    model_config = SettingsConfigDict(
+        env_prefix="telegram_"
+    )
+
+settings = TelegramSettings()

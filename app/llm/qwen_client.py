@@ -3,7 +3,7 @@ from typing import Iterator, Union
 from langchain_openai.chat_models.base import BaseChatOpenAI
 
 from app.llm._llm_api_client import LLMClient
-from app.setting import settings
+from app.config.setting import settings
 
 
 class QwenClient(LLMClient):
