@@ -71,11 +71,6 @@ class ChatManager(metaclass=Singleton):
 
         stock_workflow = self.stock_workflow.get_stock_graph()
 
-        # tools = [
-        #     stock_lhb_hyyyb_em,
-        #     stock_lhb_detail_em
-        # ]
-        # stock_workflow = create_react_agent(self.agent_model, tools=tools, state_schema=State, debug=True, state_modifier="请根据用户问题，选择不同的工具，解决用户的问题")
         builder = StateGraph(State)
         builder.add_node("switch_agent", categorize)
         builder.add_node("stock_agent", stock_workflow)
