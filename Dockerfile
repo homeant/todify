@@ -20,4 +20,4 @@ RUN poetry config virtualenvs.create false
 RUN poetry install
 
 # 使用uvicorn启动应用
-CMD ["sh", "-c", "uvicorn app.main:app --host", "0.0.0.0 --port 8080"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8080"]
