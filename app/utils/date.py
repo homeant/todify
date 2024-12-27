@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional
 
 import arrow
@@ -24,6 +25,8 @@ def format_date(date: Arrow, format_str: str = DEFAULT_FORMAT):
 def format_now(format_str: str = DEFAULT_FORMAT):
     return format_date(get_now(), format_str)
 
+def str_to_date(date_str: str, format_str: str = DEFAULT_FORMAT) -> datetime.datetime:
+    return arrow.get(date_str, format_str).datetime
 
 def get_last_trade_date(current_date: Optional[Arrow] = None) -> Arrow:
     """

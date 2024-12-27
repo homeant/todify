@@ -17,18 +17,8 @@ def init_celery_app() -> Celery:
     # 配置定时任务
     celery_app.conf.beat_schedule = {
         'fetch-daily-data': {
-            'task': 'app.tasks.stock_tasks.fetch_daily_data_task',
-            'schedule': crontab(hour="23", minute="39"),
-            "args": (),
-        },
-        'fetch-lhb-data': {
-            'task': 'app.tasks.stock_tasks.fetch_lhb_data_task',
-            'schedule': crontab(hour="23", minute="40"),
-            "args": (),
-        },
-        'fetch-block-trade-data': {
-            'task': 'app.tasks.stock_tasks.fetch_block_trade_data_task',
-            'schedule': crontab(hour="23", minute="41"),
+            'task': 'app.tasks.stock_tasks.fetch_daily_stock_data',
+            'schedule': crontab(hour="23", minute="02"),
             "args": (),
         },
     }

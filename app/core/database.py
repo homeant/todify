@@ -17,7 +17,7 @@ engine = create_engine(
 )
 
 # 创建会话工厂
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(expire_on_commit=False, bind=engine)
 
 # 创建基础模型类
 Base = declarative_base()

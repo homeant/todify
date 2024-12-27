@@ -8,9 +8,6 @@ from app.core.database import engine
 from app.core.datastore import Base
 from app.logger import setup_logging
 
-# 创建数据库表
-Base.metadata.create_all(bind=engine)
-
 
 file_path = "./logs/app.log"
 
@@ -28,6 +25,9 @@ router.include_router(user_router, prefix="/user")
 router.include_router(chat_router, prefix="/chat")
 
 app.include_router(router)
+
+# 创建数据库表
+Base.metadata.create_all(bind=engine)
 
 
 # @app.post("/token")

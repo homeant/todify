@@ -4,6 +4,7 @@ from sqlalchemy import Executable
 from sqlalchemy.orm import Session
 
 from app.core.database import Base
+from app.utils.list import batch_list
 
 # 定义泛型类型变量
 T = TypeVar("T", bound=Base)
@@ -32,7 +33,8 @@ class BaseDatastore(Generic[T]):
         return instance
 
     def bulk_save(self, instances: list[T], batch_size: int = 64):
-        self.db_session.bulk_save_objects(instances)
+        for items in batch_list(instances, batch_size):
+            self.db_session.bulk_save_objects(items)
         self.db_session.commit()
 
     def _execute(self, statement: Executable):
