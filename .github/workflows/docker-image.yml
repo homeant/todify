@@ -23,11 +23,11 @@ jobs:
       uses: docker/login-action@v3.3.0
       with:
         # Username used to log against the Docker registry
-        username: ${{secrets.dockerhub_username}}
+        username: ${{secrets.DOCKER_ALIYUN_USERNAME}}
         # Password or personal access token used to log against the Docker registry
-        password: ${{secrets.dockerhub_password}}
+        password: ${{secrets.DOCKER_ALIYUN_PASSWORD}}
     - name: Build and push Docker images
       uses: docker/build-push-action@v6.10.0
       with:
         push: true
-        tags: ${{secrets.dockerhub_username}}/todify:latest
+        tags: ${{secrets.DOCKER_ALIYUN_NAMESPACE}}/todify:latest
