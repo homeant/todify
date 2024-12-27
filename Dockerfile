@@ -1,7 +1,7 @@
 FROM python:3.13-slim
 
 # 更新包管理器并安装 default-mysql-client
-RUN apt-get update && apt-get install -y --no-install-recommends default-mysql-client \
+RUN apt-get update && apt-get install -y --no-install-recommends python3-dev default-libmysqlclient-dev build-essential pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
