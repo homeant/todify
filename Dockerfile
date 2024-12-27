@@ -12,8 +12,6 @@ RUN pip install poetry
 # 复制项目依赖文件
 COPY app pyproject.toml poetry.lock* /
 
-RUN sh
-
 # 配置poetry不创建虚拟环境（在容器中没有必要）
 RUN poetry config virtualenvs.create false
 
@@ -24,4 +22,4 @@ RUN poetry install
 EXPOSE 8080
 
 # 使用uvicorn启动应用
-CMD ["sh", "-c", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-c", "uvicorn app.main:app", "--host", "0.0.0.0", "--port", "8080"]
