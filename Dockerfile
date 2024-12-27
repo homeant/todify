@@ -10,7 +10,8 @@ WORKDIR /app
 RUN pip install poetry
 
 # 复制项目依赖文件
-COPY app pyproject.toml poetry.lock* /
+COPY pyproject.toml poetry.lock* /
+COPY app /app/app
 
 # 配置poetry不创建虚拟环境（在容器中没有必要）
 RUN poetry config virtualenvs.create false
