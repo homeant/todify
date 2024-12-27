@@ -29,4 +29,4 @@ jobs:
       uses: docker/build-push-action@v6.10.0
       with:
         push: true
-        tags: registry.cn-beijing.aliyuncs.com/${{secrets.DOCKER_ALIYUN_NAMESPACE}}/todify:latest
+        tags: registry.cn-beijing.aliyuncs.com/${{secrets.DOCKER_ALIYUN_NAMESPACE}}/todify:${{ github.sha }}
