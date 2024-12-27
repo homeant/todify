@@ -10,7 +10,7 @@ WORKDIR /app
 RUN pip install poetry
 
 # 复制项目依赖文件
-COPY app pyproject.toml poetry.lock* app/
+COPY app pyproject.toml poetry.lock* /
 
 RUN sh
 
