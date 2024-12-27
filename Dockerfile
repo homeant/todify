@@ -19,8 +19,5 @@ RUN poetry config virtualenvs.create false
 # 安装项目依赖
 RUN poetry install
 
-# 暴露端口
-EXPOSE 8080
-
 # 使用uvicorn启动应用
-CMD ["sh", "-c", "uvicorn app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-c", "uvicorn app.main:app --host", "0.0.0.0 --port 8080"]
