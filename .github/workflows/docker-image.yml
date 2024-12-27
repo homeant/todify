@@ -31,4 +31,4 @@ jobs:
       uses: docker/build-push-action@v6.10.0
       with:
         push: true
-        tags: ${{secrets.DOCKER_ALIYUN_NAMESPACE}}/todify:latest
+        tags: junchen1688/todify:latest
