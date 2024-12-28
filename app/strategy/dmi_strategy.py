@@ -3,7 +3,7 @@ from typing import List, Optional
 import pandas as pd
 
 from app.stock.service import StockService
-from app.strategy.base import BaseStrategy
+from app.strategy._strategy import BaseStrategy
 
 
 class DMIStrategy(BaseStrategy):

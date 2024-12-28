@@ -4,7 +4,7 @@ import pandas as pd
 
 from app.core.database import SessionLocal
 from app.stock.datastore import StockDatastore
-from app.strategy.base import BaseStrategy
+from app.strategy._strategy import BaseStrategy
 
 
 class BacktestEngine:

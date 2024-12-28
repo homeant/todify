@@ -15,8 +15,8 @@ from langgraph.utils.runnable import RunnableCallable
 from pydantic import BaseModel, Field
 
 from app.chat._workflow import acall_model
-from app.core.singleton import Singleton
 from app.config.setting import settings
+from app.core.singleton import Singleton
 from app.stock.trade_calendar import TradeCalendar
 from app.tools.tool_manager import ToolManager
 from app.utils.date import SIMPLE_FORMAT, date_format, now_format
@@ -109,7 +109,9 @@ class StockWorkflow(metaclass=Singleton):
             {
                 "messages": state["messages"],
                 "today": now_format(SIMPLE_FORMAT),
-                "last_trade_date": date_format(self.trade_calendar.get_last_trade_day(), SIMPLE_FORMAT),
+                "last_trade_date": date_format(
+                    self.trade_calendar.get_last_trade_day(), SIMPLE_FORMAT
+                ),
             }
         )
         return {"messages": [response]}

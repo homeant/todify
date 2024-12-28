@@ -1,5 +1,6 @@
 from typing import Optional
 
+import arrow
 import pandas as pd
 
 from app.core.service import BaseService
@@ -22,19 +23,19 @@ from app.utils.indicator import (
 )
 
 
-class IndicatorService(BaseService[StockDatastore, StockIndicator]):
+class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
     """指标计算服务"""
 
     def __init__(self, datastore: StockDatastore):
         super().__init__(datastore)
 
-    async def calculate_indicators(
-        self, code: str, start_date: Optional[str] = None
-    ) -> None:
+    def calculate_indicators(self, code: str, date: str) -> None:
         """计算股票技术指标"""
+        # 获取前60天
+        start_date = arrow.get(date).shift(days=-60).format("YYYY-MM-DD")
         try:
             # 获取历史数据
-            df = await self._get_history_data(code, start_date)
+            df = self._get_history_data(code, start_date)
             if df.empty:
                 return
 
@@ -120,7 +121,7 @@ class IndicatorService(BaseService[StockDatastore, StockIndicator]):
 
                 indicator = StockIndicator(
                     code=code,
-                    trade_date=row.name,  # 假设日期是index
+                    trade_date=arrow.get(date).date(),
                     ma5=row["ma5"],
                     ma10=row["ma10"],
                     ma20=row["ma20"],
@@ -164,16 +165,16 @@ class IndicatorService(BaseService[StockDatastore, StockIndicator]):
 
             # 批量保存
             if indicators:
-                await self.datastore.bulk_save(indicators)
+                self.datastore.bulk_save(indicators)
 
         except Exception as e:
             print(f"计算股票{code}指标失败: {str(e)}")
 
-    async def _get_history_data(
+    def _get_history_data(
         self, code: str, start_date: Optional[str] = None
     ) -> pd.DataFrame:
         """获取历史数据"""
-        stocks = await self.datastore.get_stock_history(code, start_date)
+        stocks = self.datastore.get_stock_history(code, start_date)
         if not stocks:
             return pd.DataFrame()
 

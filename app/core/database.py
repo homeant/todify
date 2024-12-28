@@ -1,5 +1,5 @@
 # 创建数据库引擎
-from sqlalchemy import create_engine, QueuePool
+from sqlalchemy import QueuePool, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from app.config.setting import settings
@@ -22,8 +22,10 @@ SessionLocal = sessionmaker(expire_on_commit=False, bind=engine)
 # 创建基础模型类
 Base = declarative_base()
 
+
 def get_db():
     return SessionLocal()
+
 
 # 获取数据库会话的依赖函数
 def get_async_db():

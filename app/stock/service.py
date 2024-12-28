@@ -10,8 +10,8 @@ from app.core.service import BaseService
 from app.models.stock import StockBlockTrade, StockDaily, StockLhb
 from app.stock.datastore import StockDatastore
 
-
 logger = logging.getLogger(__name__)
+
 
 class StockService(BaseService[StockDatastore, Base]):
     def __init__(self, datastore: StockDatastore):
@@ -38,18 +38,20 @@ class StockService(BaseService[StockDatastore, Base]):
                     continue
                 # 转换数据
                 for _, data in df.iterrows():
-                    stocks.append(StockDaily(
-                        code=code,
-                        name = row["name"],
-                        trade_date=datetime.strptime(date, "%Y%m%d").date(),
-                        open=data["开盘"],
-                        high=data["最高"],
-                        low=data["最低"],
-                        close=data["收盘"],
-                        volume=data["成交量"],
-                        amount=data["成交额"],
-                        turnover=data["换手率"],
-                    ))
+                    stocks.append(
+                        StockDaily(
+                            code=code,
+                            name=row["name"],
+                            trade_date=datetime.strptime(date, "%Y%m%d").date(),
+                            open=data["开盘"],
+                            high=data["最高"],
+                            low=data["最低"],
+                            close=data["收盘"],
+                            volume=data["成交量"],
+                            amount=data["成交额"],
+                            turnover=data["换手率"],
+                        )
+                    )
             except Exception as e:
                 logger.exception(f"获取股票{code}数据失败:{str(e)}")
                 raise e
@@ -66,21 +68,22 @@ class StockService(BaseService[StockDatastore, Base]):
             # 转换数据
             stocks = []
             for _, data in df.iterrows():
-                stocks.append(StockLhb(
-                    code=data["代码"],
-                    name=data["名称"],
-                    trade_date=datetime.strptime(date, "%Y%m%d").date(),
-                    reason=data["上榜原因"],
-                    net_buy=data["净买额"] if "净买额" in data else 0,
-                    buy_amount=data["买入额"] if "买入额" in data else 0,
-                    sell_amount=data["卖出额"] if "卖出额" in data else 0,
-                    total_amount=data["���交额"] if "成交额" in data else 0,
-                ))
+                stocks.append(
+                    StockLhb(
+                        code=data["代码"],
+                        name=data["名称"],
+                        trade_date=datetime.strptime(date, "%Y%m%d").date(),
+                        reason=data["上榜原因"],
+                        net_buy=data["净买额"] if "净买额" in data else 0,
+                        buy_amount=data["买入额"] if "买入额" in data else 0,
+                        sell_amount=data["卖出额"] if "卖出额" in data else 0,
+                        total_amount=data["���交额"] if "成交额" in data else 0,
+                    )
+                )
             self.datastore.bulk_save(stocks)
         except Exception as e:
             logger.exception(f"获取龙虎榜数据失败:{str(e)}")
             raise e
-
 
     def fetch_block_trade_data(self, date: Optional[str] = None) -> None:
         """抓取大宗交易数据"""
@@ -93,17 +96,19 @@ class StockService(BaseService[StockDatastore, Base]):
             # 转换数据
             stocks = []
             for _, data in df.iterrows():
-                stocks.append(StockBlockTrade(
-                    code=data["证券代码"],
-                    name=data["证券简称"],
-                    trade_date=data['交易日期'],
-                    price=data["成交价"],
-                    volume=data["成交量"],
-                    amount=data["成交额"],
-                    buyer=data["买方营业部"],
-                    seller=data["卖方营业部"],
-                    premium=data["折溢率"],
-                ))
+                stocks.append(
+                    StockBlockTrade(
+                        code=data["证券代码"],
+                        name=data["证券简称"],
+                        trade_date=data["交易日期"],
+                        price=data["成交价"],
+                        volume=data["成交量"],
+                        amount=data["成交额"],
+                        buyer=data["买方营业部"],
+                        seller=data["卖方营业部"],
+                        premium=data["折溢率"],
+                    )
+                )
             self.datastore.bulk_save(stocks)
         except Exception as e:
             logger.exception(f"获取大宗交易数据失败:{str(e)}")

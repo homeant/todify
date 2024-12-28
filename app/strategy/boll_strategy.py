@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from app.strategy.base import BaseStrategy
+from app.strategy._strategy import BaseStrategy
 
 
 class BollStrategy(BaseStrategy):

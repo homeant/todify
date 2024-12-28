@@ -1,7 +1,7 @@
 from typing import Dict, List, Type
 
 from app.core.singleton import Singleton
-from app.strategy.base import BaseStrategy
+from app.strategy._strategy import BaseStrategy
 from app.strategy.boll_strategy import BollStrategy
 from app.strategy.cci_strategy import CCIStrategy
 from app.strategy.combo_strategy import ComboStrategy
