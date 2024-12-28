@@ -18,9 +18,9 @@ def init_celery_app() -> Celery:
     celery_app.conf.beat_schedule = {
         "fetch-daily-data": {
             "task": "app.tasks.stock_tasks.fetch_daily_stock_data",
-            "schedule": crontab(hour="20", minute="48"),
+            "schedule": crontab(hour="21", minute="28"),
             # "kwargs": ({'data': lambda : now_format(SHORT_DATE_FORMAT)}),
-            "kwargs": ({'data': '20241225'}),
+            "kwargs": ({'data': '20241228'}),
         },
     }
 
