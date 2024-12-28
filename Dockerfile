@@ -4,6 +4,8 @@ FROM python:3.13-slim
 RUN apt-get update && apt-get install -y --no-install-recommends python3-dev default-libmysqlclient-dev build-essential pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get install --reinstall ca-certificates && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # 安装poetry
