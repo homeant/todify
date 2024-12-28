@@ -17,8 +17,9 @@ from pydantic import BaseModel, Field
 from app.chat._workflow import acall_model
 from app.core.singleton import Singleton
 from app.config.setting import settings
+from app.stock.trade_calendar import TradeCalendar
 from app.tools.tool_manager import ToolManager
-from app.utils.date import SIMPLE_FORMAT, format_date, format_now, get_last_trade_date
+from app.utils.date import SIMPLE_FORMAT, date_format, now_format
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,7 @@ class StockState(AgentState):
 class StockWorkflow(metaclass=Singleton):
     def __init__(self, tool_manager: ToolManager):
         self.tool_manager = tool_manager
+        self.trade_calendar = TradeCalendar()
 
     @classmethod
     def _get_model(
@@ -106,8 +108,8 @@ class StockWorkflow(metaclass=Singleton):
         response = runnable.invoke(
             {
                 "messages": state["messages"],
-                "today": format_now(SIMPLE_FORMAT),
-                "last_trade_date": format_date(get_last_trade_date(), SIMPLE_FORMAT),
+                "today": now_format(SIMPLE_FORMAT),
+                "last_trade_date": date_format(self.trade_calendar.get_last_trade_day(), SIMPLE_FORMAT),
             }
         )
         return {"messages": [response]}

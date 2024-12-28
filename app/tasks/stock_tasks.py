@@ -4,7 +4,8 @@ from celery import shared_task, group
 
 from app.core.database import get_db
 from app.stock.depends import get_stock_service
-from app.utils.date import format_now, SHORT_DATE_FORMAT
+from app.stock.trade_calendar import TradeCalendar
+from app.utils.date import SHORT_DATE_FORMAT, get_now, date_format
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +44,15 @@ def fetch_block_trade_data_task(self, date: str):
 
 @shared_task(bind=True, max_retries=3)
 def fetch_daily_stock_data(self):
-    date = format_now(SHORT_DATE_FORMAT)
-    group(
-        # fetch_daily_data_task.s(),
-        # fetch_lhb_data_task.s(),
-        fetch_block_trade_data_task.s()
-    ).apply_async(
-        kwargs={"date": date},
-    )
+    now = get_now()
+    if TradeCalendar().is_trade_time(now):
+        date = date_format(now, SHORT_DATE_FORMAT)
+        group(
+            fetch_daily_data_task.s(),
+            fetch_lhb_data_task.s(),
+            fetch_block_trade_data_task.s()
+        ).apply_async(
+            kwargs={"date": date},
+        )
+    else:
+        logger.info(f"非交易日，不抓取数据")
