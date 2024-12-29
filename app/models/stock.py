@@ -67,34 +67,34 @@ class StockIndicator(Base):
     code = Column(String(10), index=True, nullable=False, comment="股票代码")
     trade_date = Column(Date, index=True, nullable=False, comment="交易日期")
 
-    # 均线指标
+    # 均线指标 已验证
     ma5 = Column(Numeric(10, 2), comment="5日均线")
     ma10 = Column(Numeric(10, 2), comment="10日均线")
     ma20 = Column(Numeric(10, 2), comment="20日均线")
     ma30 = Column(Numeric(10, 2), comment="30日均线")
     ma60 = Column(Numeric(10, 2), comment="60日均线")
 
-    # MACD指标
+    # MACD指标 已验证
     diff = Column(Numeric(10, 2), comment="DIFF线")
     dea = Column(Numeric(10, 2), comment="DEA线")
     macd = Column(Numeric(10, 2), comment="MACD柱")
 
-    # KDJ指标
+    # KDJ指标 已验证
     k = Column(Numeric(10, 2), comment="K值")
     d = Column(Numeric(10, 2), comment="D值")
     j = Column(Numeric(10, 2), comment="J值")
 
     # RSI指标
-    rsi6 = Column(Numeric(10, 2), comment="6日RSI")
+    rsi6 = Column(Numeric(10, 2), comment="6日RSI")  # 已验证
     rsi12 = Column(Numeric(10, 2), comment="12日RSI")
     rsi24 = Column(Numeric(10, 2), comment="24日RSI")
 
-    # 布林带指标
+    # 布林带指标 已验证
     boll_up = Column(Numeric(10, 2), comment="布林上轨")
     boll_mid = Column(Numeric(10, 2), comment="布林中轨")
     boll_down = Column(Numeric(10, 2), comment="布林下轨")
 
-    # 成交量指标
+    # 成交量指标 已验证
     vma5 = Column(Numeric(20, 2), comment="5日成交量均线")
     vma10 = Column(Numeric(20, 2), comment="10日成交量均线")
     vma20 = Column(Numeric(20, 2), comment="20日成交量均线")
@@ -106,30 +106,13 @@ class StockIndicator(Base):
     adxr = Column(Numeric(10, 2), comment="ADXR值")
 
     # TRIX指标
-    trix = Column(Numeric(10, 2), comment="TRIX值")
+    trix = Column(Numeric(10, 2), comment="TRIX值")  # 已验证
     matrix = Column(Numeric(10, 2), comment="MATRIX值")
 
-    # CCI指标
+    # CCI指标 已验证
     cci = Column(Numeric(10, 2), comment="CCI值")
 
-    # ATR指标
-    atr = Column(Numeric(10, 2), comment="ATR值")
-
-    # CR指标
-    cr = Column(Numeric(10, 2), comment="CR值")
-    cr_ma1 = Column(Numeric(10, 2), comment="CR均线1")
-    cr_ma2 = Column(Numeric(10, 2), comment="CR均线2")
-    cr_ma3 = Column(Numeric(10, 2), comment="CR均线3")
-
-    # ROC指标
-    roc = Column(Numeric(10, 2), comment="ROC值")
-    rocma = Column(Numeric(10, 2), comment="ROCMA值")
-
-    # PSY指标
-    psy = Column(Numeric(10, 2), comment="PSY值")
-    psyma = Column(Numeric(10, 2), comment="PSYMA值")
-
-    # DMA指标
+    # DMA指标 已验证
     dma = Column(Numeric(10, 2), comment="DMA值")
     ama = Column(Numeric(10, 2), comment="AMA值")
 

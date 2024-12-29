@@ -1,0 +1,112 @@
+services:
+  todify:
+    image: todify:0.1
+    container_name: todify
+    ports:
+      - "3006:8080"
+    restart: always
+    environment:
+      jwt_secret: ${jwt_secret}
+      jwt_expire_seconds: ${jwt_expire_seconds}
+      jwt_algorithm: ${jwt_algorithm}
+      database_url: ${database_url}
+      DASH_SCOPE_API_KEY: ${DASH_SCOPE_API_KEY}
+      SILICON_FLOW_API_KEY: ${SILICON_FLOW_API_KEY}
+      LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2}
+      LANGCHAIN_ENDPOINT: ${LANGCHAIN_ENDPOINT}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+      LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT}
+      qdrant_url: ${qdrant_url}
+      qdrant_api_key: ${qdrant_api_key}
+      celery_broker_url: ${celery_broker_url}
+      celery_backend_url: ${celery_backend_url}
+      HTTPS_PROXY: ${HTTPS_PROXY}
+      NO_PROXY: ${NO_PROXY}
+      HTTP_PROXY: ${HTTP_PROXY}
+      TZ: ${TZ}
+    depends_on:
+      - mysql
+    networks:
+      - trim-default
+  todify-beat:
+    image: todify:0.1
+    container_name: todify-beat
+    restart: always
+    entrypoint: ["sh", "-c", "celery -A app.main.celery_app beat -l info"]
+    environment:
+      jwt_secret: ${jwt_secret}
+      jwt_expire_seconds: ${jwt_expire_seconds}
+      jwt_algorithm: ${jwt_algorithm}
+      database_url: ${database_url}
+      DASH_SCOPE_API_KEY: ${DASH_SCOPE_API_KEY}
+      SILICON_FLOW_API_KEY: ${SILICON_FLOW_API_KEY}
+      LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2}
+      LANGCHAIN_ENDPOINT: ${LANGCHAIN_ENDPOINT}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+      LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT}
+      qdrant_url: ${qdrant_url}
+      qdrant_api_key: ${qdrant_api_key}
+      celery_broker_url: ${celery_broker_url}
+      celery_backend_url: ${celery_backend_url}
+      HTTPS_PROXY: ${HTTPS_PROXY}
+      NO_PROXY: ${NO_PROXY}
+      HTTP_PROXY: ${HTTP_PROXY}
+      TZ: ${TZ}
+    networks:
+      - trim-default
+  todify-worker:
+    image: todify:0.1
+    container_name: todify-worker
+    restart: always
+    entrypoint: ["sh", "-c", "celery -A app.main.celery_app worker -l info"]
+    environment:
+      jwt_secret: ${jwt_secret}
+      jwt_expire_seconds: ${jwt_expire_seconds}
+      jwt_algorithm: ${jwt_algorithm}
+      database_url: ${database_url}
+      DASH_SCOPE_API_KEY: ${DASH_SCOPE_API_KEY}
+      SILICON_FLOW_API_KEY: ${SILICON_FLOW_API_KEY}
+      LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2}
+      LANGCHAIN_ENDPOINT: ${LANGCHAIN_ENDPOINT}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+      LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT}
+      qdrant_url: ${qdrant_url}
+      qdrant_api_key: ${qdrant_api_key}
+      celery_broker_url: ${celery_broker_url}
+      celery_backend_url: ${celery_backend_url}
+      # HTTPS_PROXY: ${HTTPS_PROXY}
+      # NO_PROXY: ${NO_PROXY}
+      # HTTP_PROXY: ${HTTP_PROXY}
+      TZ: ${TZ}
+    depends_on:
+      - mysql
+    networks:
+      - trim-default
+  todify-flower:
+    image: mher/flower
+    container_name: todify-flower
+    restart: always
+    ports:
+      - "3007:5555"
+    entrypoint: ["sh", "-c", "celery --broker=${celery_broker_url} flower -l info"]
+    networks:
+      - trim-default
+  mysql:
+    container_name: todify-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PANEL_DB_ROOT_PASSWORD}
+    image: mysql:8.4.3
+    ports:
+      - "3307:3306"
+    restart: always
+    volumes:
+      - ./mysql/data/:/var/lib/mysql
+      - ./mysql/conf/my.cnf:/etc/my.cnf
+      - ./mysql/log:/var/log/mysql
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - trim-default
+networks:
+  trim-default:
+    external: true # 使用已存在的外部网络

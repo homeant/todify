@@ -1,3 +1,5 @@
+import logging
+from datetime import date
 from typing import Optional
 
 import pandas as pd
@@ -5,175 +7,149 @@ import pandas as pd
 from app.core.service import BaseService
 from app.models.stock import StockIndicator
 from app.stock.datastore import StockDatastore
+from app.utils.data_frame import df_process
+from app.utils.date import date_parse
 from app.utils.indicator import (
-    calculate_atr,
     calculate_boll,
     calculate_cci,
-    calculate_cr,
     calculate_dma,
-    calculate_dmi,
     calculate_kdj,
     calculate_ma,
     calculate_macd,
-    calculate_psy,
-    calculate_roc,
     calculate_rsi,
     calculate_trix,
 )
 
+logger = logging.getLogger(__name__)
 
-class IndicatorService(BaseService[StockDatastore, StockIndicator]):
+
+class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
     """指标计算服务"""
 
     def __init__(self, datastore: StockDatastore):
         super().__init__(datastore)
 
-    async def calculate_indicators(
-        self, code: str, start_date: Optional[str] = None
-    ) -> None:
+    def calculate_indicators(self, code: str, current_date: date) -> None:
         """计算股票技术指标"""
+        logger.info(f"开始计算股票{code}的技术指标")
+        old_indicator = self.datastore.get_indicator(code, current_date)
+        if old_indicator:
+            logger.info(f"股票{code}的技术指标已存在，跳过计算")
+            return
+        # 获取前120天的数据用于计算指标
+        start_date = date_parse(current_date).shift(days=-120).format("YYYY-MM-DD")
         try:
             # 获取历史数据
-            df = await self._get_history_data(code, start_date)
+            df = self._get_history_data(code, start_date)
             if df.empty:
                 return
 
-            # 计算各项指标
-            indicators = []
-
-            # 计算均线
+            # 计算均线 已验证
             ma_periods = [5, 10, 20, 30, 60]
+            new_pd = pd.DataFrame()
+
             for period in ma_periods:
-                df[f"ma{period}"] = calculate_ma(df["close"], period)
+                new_pd[f"ma{period}"] = calculate_ma(df["close"], period)
 
-            # 计算MACD
+            # 计算MACD 已验证
             diff, dea, macd = calculate_macd(df["close"])
-            df["diff"] = diff
-            df["dea"] = dea
-            df["macd"] = macd
+            new_pd["diff"] = diff
+            new_pd["dea"] = dea
+            new_pd["macd"] = macd
 
-            # 计算KDJ
+            # 计算KDJ 已验证
             k, d, j = calculate_kdj(df["high"], df["low"], df["close"])
-            df["k"] = k
-            df["d"] = d
-            df["j"] = j
+            new_pd["k"] = k
+            new_pd["d"] = d
+            new_pd["j"] = j
 
             # 计算RSI
-            df["rsi6"] = calculate_rsi(df["close"], 6)
-            df["rsi12"] = calculate_rsi(df["close"], 12)
-            df["rsi24"] = calculate_rsi(df["close"], 24)
+            new_pd["rsi6"] = calculate_rsi(df["close"], 6)  # 已验证
+            new_pd["rsi12"] = calculate_rsi(df["close"], 12)
+            new_pd["rsi24"] = calculate_rsi(df["close"], 24)
 
-            # 计算布林带
+            # 计算布林带 已验证
             up, mid, down = calculate_boll(df["close"])
-            df["boll_up"] = up
-            df["boll_mid"] = mid
-            df["boll_down"] = down
+            new_pd["boll_up"] = up
+            new_pd["boll_mid"] = mid
+            new_pd["boll_down"] = down
 
-            # 计算成交量均线
+            # 计算成交量均线 已验证
             for period in [5, 10, 20]:
-                df[f"vma{period}"] = calculate_ma(df["volume"], period)
+                new_pd[f"vma{period}"] = calculate_ma(df["volume"], period)
 
             # 计算DMI
-            pdi, mdi, adx, adxr = calculate_dmi(df["high"], df["low"], df["close"])
-            df["pdi"] = pdi
-            df["mdi"] = mdi
-            df["adx"] = adx
-            df["adxr"] = adxr
+            # pdi, mdi, adx, adxr = calculate_dmi(df["high"], df["low"], df["close"])
+            # new_pd["pdi"] = pdi
+            # new_pd["mdi"] = mdi
+            # new_pd["adx"] = adx
+            # new_pd["adxr"] = adxr
 
             # 计算TRIX
             trix, matrix = calculate_trix(df["close"])
-            df["trix"] = trix
-            df["matrix"] = matrix
+            new_pd["trix"] = trix
+            new_pd["matrix"] = matrix
 
-            # 计算CCI
-            df["cci"] = calculate_cci(df["high"], df["low"], df["close"])
+            # 计算CCI 已验证
+            new_pd["cci"] = calculate_cci(df["high"], df["low"], df["close"])
 
-            # 计算ATR
-            df["atr"] = calculate_atr(df["high"], df["low"], df["close"])
-
-            # 计算CR
-            cr, cr_ma1, cr_ma2, cr_ma3 = calculate_cr(df["high"], df["low"])
-            df["cr"] = cr
-            df["cr_ma1"] = cr_ma1
-            df["cr_ma2"] = cr_ma2
-            df["cr_ma3"] = cr_ma3
-
-            # 计算ROC
-            roc, rocma = calculate_roc(df["close"])
-            df["roc"] = roc
-            df["rocma"] = rocma
-
-            # 计算PSY
-            psy, psyma = calculate_psy(df["close"])
-            df["psy"] = psy
-            df["psyma"] = psyma
-
-            # 计算DMA
+            # 计算DMA 已验证
             dma, ama = calculate_dma(df["close"])
-            df["dma"] = dma
-            df["ama"] = ama
+            new_pd["dma"] = dma
+            new_pd["ama"] = ama
 
-            # 转换为指标记录
-            for _, row in df.iterrows():
-                if pd.isna(row["ma60"]):  # 跳过数据不足的记录
-                    continue
+            new_pd = df_process(new_pd, format_nan=True)
 
-                indicator = StockIndicator(
-                    code=code,
-                    trade_date=row.name,  # 假设日期是index
-                    ma5=row["ma5"],
-                    ma10=row["ma10"],
-                    ma20=row["ma20"],
-                    ma30=row["ma30"],
-                    ma60=row["ma60"],
-                    diff=row["diff"],
-                    dea=row["dea"],
-                    macd=row["macd"],
-                    k=row["k"],
-                    d=row["d"],
-                    j=row["j"],
-                    rsi6=row["rsi6"],
-                    rsi12=row["rsi12"],
-                    rsi24=row["rsi24"],
-                    boll_up=row["boll_up"],
-                    boll_mid=row["boll_mid"],
-                    boll_down=row["boll_down"],
-                    vma5=row["vma5"],
-                    vma10=row["vma10"],
-                    vma20=row["vma20"],
-                    pdi=row["pdi"],
-                    mdi=row["mdi"],
-                    adx=row["adx"],
-                    adxr=row["adxr"],
-                    trix=row["trix"],
-                    matrix=row["matrix"],
-                    cci=row["cci"],
-                    atr=row["atr"],
-                    cr=row["cr"],
-                    cr_ma1=row["cr_ma1"],
-                    cr_ma2=row["cr_ma2"],
-                    cr_ma3=row["cr_ma3"],
-                    roc=row["roc"],
-                    rocma=row["rocma"],
-                    psy=row["psy"],
-                    psyma=row["psyma"],
-                    dma=row["dma"],
-                    ama=row["ama"],
-                )
-                indicators.append(indicator)
+            # 只获取指定日期的数据
+            row = new_pd.loc[pd.to_datetime(current_date)]
 
-            # 批量保存
-            if indicators:
-                await self.datastore.bulk_save(indicators)
+            if pd.isna(row["ma60"]):  # 数据不足则跳过
+                return
+            # 创建单个指标记录
+            indicator = StockIndicator(
+                code=code,
+                trade_date=current_date,
+                ma5=row["ma5"],
+                ma10=row["ma10"],
+                ma20=row["ma20"],
+                ma30=row["ma30"],
+                ma60=row["ma60"],
+                diff=row["diff"],
+                dea=row["dea"],
+                macd=row["macd"],
+                k=row["k"],
+                d=row["d"],
+                j=row["j"],
+                rsi6=row["rsi6"],
+                rsi12=row["rsi12"],
+                rsi24=row["rsi24"],
+                boll_up=row["boll_up"],
+                boll_mid=row["boll_mid"],
+                boll_down=row["boll_down"],
+                vma5=row["vma5"],
+                vma10=row["vma10"],
+                vma20=row["vma20"],
+                # pdi=row["pdi"],
+                # mdi=row["mdi"],
+                # adx=row["adx"],
+                # adxr=row["adxr"],
+                trix=row["trix"],
+                # matrix=row["matrix"],
+                cci=row["cci"],
+                dma=row["dma"],
+                ama=row["ama"],
+            )
+            # 保存单个指标记录
+            self.datastore.upsert(indicator)
 
         except Exception as e:
-            print(f"计算股票{code}指标失败: {str(e)}")
+            logger.exception(f"计算股票{code}指标失败: {str(e)}")
 
-    async def _get_history_data(
+    def _get_history_data(
         self, code: str, start_date: Optional[str] = None
     ) -> pd.DataFrame:
         """获取历史数据"""
-        stocks = await self.datastore.get_stock_history(code, start_date)
+        stocks = self.datastore.get_stock_history(code, start_date)
         if not stocks:
             return pd.DataFrame()
 

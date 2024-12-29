@@ -30,6 +30,7 @@ pydantic-settings = "^2.7.0"
 redis = "^5.2.1"
 eventlet = "^0.38.2"
 gevent = "^24.11.1"
+ta-lib = "^0.5.2"
 
 
 [tool.poetry.group.dev.dependencies]

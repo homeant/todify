@@ -1,0 +1,25 @@
+FROM python:3.13-slim
+
+# 更新包管理器并安装 default-mysql-client
+RUN apt-get update && apt-get install -y --no-install-recommends curl default-libmysqlclient-dev build-essential pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -SL https://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz | tar -xzC . && \
+    cd ta-lib/  && \
+    ./configure --prefix=/usr && \
+    make && \
+    make install
+
+ADD pip.conf /root/.pip/
+
+# 安装poetry
+RUN pip install poetry
+
+# 复制项目依赖文件
+COPY pyproject.toml poetry.lock* /
+
+# 配置poetry不创建虚拟环境（在容器中没有必要）
+RUN poetry config virtualenvs.create false
+
+# 安装项目依赖
+RUN poetry install

@@ -8,7 +8,6 @@ from app.core.database import engine
 from app.core.datastore import Base
 from app.logger import setup_logging
 
-
 file_path = "./logs/app.log"
 
 setup_logging(file_path)

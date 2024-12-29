@@ -19,8 +19,7 @@ class Settings(BaseSettings):
     qdrant_url: str
     qdrant_api_key: str
 
-    model_config = SettingsConfigDict(
-    )
+    model_config = SettingsConfigDict()
 
 
 settings = Settings()

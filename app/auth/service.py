@@ -4,8 +4,8 @@ from fastapi import HTTPException
 from starlette import status
 
 from app.auth.schemas import AuthToken
-from app.core.security import create_access_token, verify_password
 from app.config.setting import settings
+from app.core.security import create_access_token, verify_password
 from app.user.schemas import UserLogin
 from app.user.service import UserService
 

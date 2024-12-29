@@ -4,8 +4,8 @@ from typing import Dict, List
 
 import akshare as ak
 
-from app.embeddings.embedding_factory import EmbeddingFactory
 from app.config.setting import settings
+from app.embeddings.embedding_factory import EmbeddingFactory
 
 logger = logging.getLogger(__name__)
 

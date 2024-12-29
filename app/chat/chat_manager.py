@@ -19,10 +19,10 @@ from app.chat.schemas import (
     Usage,
 )
 from app.chat.stock_workflow import StockWorkflow
-from app.core.singleton import Singleton
 from app.config.setting import settings
+from app.core.singleton import Singleton
 from app.tools.tool_manager import ToolManager
-from app.utils.date import format_now, get_now_millis
+from app.utils.date import get_now_millis, now_format
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +116,7 @@ class ChatManager(metaclass=Singleton):
     ) -> ChatCompletionResponse | AsyncGenerator:
         inputs = {
             "messages": [self._format_message(request.messages[-1])],
-            "today": format_now(),
+            "today": now_format(),
         }
         workflow = self.get_work_flow()
         if request.stream:
