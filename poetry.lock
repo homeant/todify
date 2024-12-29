@@ -3885,6 +3885,20 @@ anyio = ">=3.4.0,<5"
 full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.7)", "pyyaml"]
 
 [[package]]
+name = "ta-lib"
+version = "0.5.2"
+description = "Python wrapper for TA-Lib"
+optional = false
+python-versions = "*"
+files = [
+    {file = "TA-Lib-0.5.2.tar.gz", hash = "sha256:73579fd9fbf801f222a80c53d5db1c081aee13e3ad053bd479f12f81ca3b7db8"},
+]
+
+[package.dependencies]
+numpy = "*"
+setuptools = "*"
+
+[[package]]
 name = "tabulate"
 version = "0.9.0"
 description = "Pretty-print tabular data"
@@ -4300,4 +4314,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.13"
-content-hash = "84ec7a0fbb6e2fa9b54c7c0762615b90110e9f8e1750ec1b70371b104ecda114"
+content-hash = "3a652827481a6770bdc21733ef45d30747accdea7a63961f65607c5f7de995ad"

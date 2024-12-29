@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.database import engine
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def session():
     """Creates a new database session for a test."""
     SessionLocal = sessionmaker(engine)

@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Union
 
 import arrow
@@ -17,7 +17,13 @@ def get_now() -> Arrow:
     return arrow.now()
 
 
-def date_format(value: Union[Arrow | datetime | date], format_str: str = DEFAULT_FORMAT):
+def get_today() -> date:
+    return arrow.now().date()
+
+
+def date_format(
+    value: Union[Arrow | datetime | date], format_str: str = DEFAULT_FORMAT
+) -> str:
     if isinstance(value, Arrow):
         return value.format(format_str)
     return arrow.get(value).format(format_str)
@@ -29,3 +35,7 @@ def now_format(format_str: str = DEFAULT_FORMAT):
 
 def date_parse(value: Union[str | datetime, date]) -> Arrow:
     return arrow.get(value)
+
+
+def date_parse_to_date(value: Union[str | datetime, date]) -> date:
+    return date_parse(value).date()
