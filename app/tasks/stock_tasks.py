@@ -11,13 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task(bind=True, max_retries=3)
-def fetch_daily_data_task(self, date: str):
+def fetch_daily_data_task(self, start_date: str, end_date: str = None):
     """抓取日线数据的任务"""
     with get_db() as session:
         stock_service = get_stock_service(session)
         try:
-            stock_service.fetch_daily_data(date)
-            logger.info(f"完成抓取{date}日线数据")
+            stock_service.fetch_daily_data(date_parse(start_date).date(), date_parse(end_date).date() if end_date else None)
+            logger.info(f"完成抓取{start_date}日线数据")
         except Exception as ex:
             logger.exception(f"抓取日线数据失败: {str(ex)}")
             raise ex

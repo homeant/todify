@@ -3,8 +3,10 @@ from datetime import datetime
 import akshare as ak
 import arrow
 
+from app.core.singleton import Singleton
 
-class TradeCalendar:
+
+class TradeCalendar(metaclass=Singleton):
     """交易日历类，用于处理交易时间相关的判断"""
 
     def __init__(self):

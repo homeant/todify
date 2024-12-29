@@ -2,7 +2,6 @@ from celery import Celery
 from celery.schedules import crontab
 
 from app.config.celery import settings
-from app.utils.date import now_format, SHORT_DATE_FORMAT
 
 
 def init_celery_app() -> Celery:
@@ -18,9 +17,8 @@ def init_celery_app() -> Celery:
     celery_app.conf.beat_schedule = {
         "fetch-daily-data": {
             "task": "app.tasks.stock_tasks.fetch_daily_stock_data",
-            "schedule": crontab(hour="22", minute="57"),
-            # "kwargs": ({'data': lambda : now_format(SHORT_DATE_FORMAT)}),
-            "kwargs": (),
+            "schedule": crontab(hour="09", minute="22"),
+            # "kwargs": ({'data': '20241228'}),
         },
     }
 

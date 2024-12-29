@@ -6,7 +6,7 @@ from app.config.setting import settings
 
 engine = create_engine(
     settings.database_url,
-    echo=False,
+    echo=True,
     future=True,
     poolclass=QueuePool,
     pool_size=20,

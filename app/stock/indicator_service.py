@@ -32,7 +32,7 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
     def calculate_indicators(self, code: str, date: str) -> None:
         """计算股票技术指标"""
         # 获取前60天
-        start_date = arrow.get(date).shift(days=-60).format("YYYY-MM-DD")
+        start_date = arrow.get(date).shift(days=-90).format("YYYY-MM-DD")
         try:
             # 获取历史数据
             df = self._get_history_data(code, start_date)
