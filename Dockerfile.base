@@ -1,10 +1,14 @@
 FROM python:3.13-slim
 
 # 更新包管理器并安装 default-mysql-client
-RUN apt-get update && apt-get install -y --no-install-recommends python3-dev default-libmysqlclient-dev build-essential pkg-config \
+RUN apt-get update && apt-get install -y --no-install-recommends curl default-libmysqlclient-dev build-essential pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install --reinstall ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN curl -SL https://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz | tar -xzC . && \
+    cd ta-lib/  && \
+    ./configure --prefix=/usr && \
+    make && \
+    make install
 
 ADD pip.conf /root/.pip/
 
