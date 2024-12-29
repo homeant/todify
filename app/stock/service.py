@@ -24,7 +24,6 @@ class StockService(BaseService[StockDatastore, Base]):
         stock_info = ak.stock_info_a_code_name()
 
         # 遍历获取每只股票数据
-        stocks = []
         for _, row in stock_info.iterrows():
             code = row["code"]
             try:
@@ -37,6 +36,7 @@ class StockService(BaseService[StockDatastore, Base]):
                     continue
                 logger.info(f"获取股票{code}数据成功")
                 # 转换数据
+                stocks = []
                 for _, data in df.iterrows():
                     trade_date = date_parse(data["日期"]).date()
                     stock = self.datastore.get_stock_by_code_and_date(code, trade_date)
