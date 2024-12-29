@@ -9,6 +9,7 @@ from app.core.database import Base
 from app.core.service import BaseService
 from app.models.stock import StockBlockTrade, StockDaily, StockLhb
 from app.stock.datastore import StockDatastore
+from app.utils.data_frame import df_process
 from app.utils.date import date_format, SHORT_DATE_FORMAT, date_parse
 
 logger = logging.getLogger(__name__)
@@ -69,7 +70,7 @@ class StockService(BaseService[StockDatastore, Base]):
             df = ak.stock_lhb_detail_em(start_date=data_str, end_date=date_format(end_date, SHORT_DATE_FORMAT) if end_date else data_str)
             if df.empty:
                 return
-
+            df = df_process(df, sort_column="上榜日", format_nan=True)
             # 转换数据
             stocks = []
             for _, data in df.iterrows():
@@ -79,10 +80,10 @@ class StockService(BaseService[StockDatastore, Base]):
                         name=data["名称"],
                         trade_date=date_parse(data['上榜日']).date(),
                         reason=data["上榜原因"],
-                        net_buy=data["龙虎榜净买额"] if "龙虎榜净买额" in data else 0,
-                        buy_amount=data["龙虎榜买入额"] if "龙虎榜买入额" in data else 0,
-                        sell_amount=data["龙虎榜卖出额"] if "龙虎榜卖出额" in data else 0,
-                        total_amount=data["龙虎榜成交额"] if "龙虎榜成交额" in data else 0,
+                        net_buy=data["龙虎榜净买额"],
+                        buy_amount=data["龙虎榜买入额"],
+                        sell_amount=data["龙虎榜卖出额"],
+                        total_amount=data["龙虎榜成交额"],
                     )
                 )
             self.datastore.bulk_save(stocks)
@@ -94,10 +95,11 @@ class StockService(BaseService[StockDatastore, Base]):
         """抓取大宗交易数据"""
         try:
             # 获取大宗交易数据
-            start_date_str = format(start_date, SHORT_DATE_FORMAT)
-            df = ak.stock_dzjy_mrmx(symbol="A股", start_date=start_date_str, end_date=format(end_date, SHORT_DATE_FORMAT) if end_date else start_date_str)
+            start_date_str = date_format(start_date, SHORT_DATE_FORMAT)
+            df = ak.stock_dzjy_mrmx(symbol="A股", start_date=start_date_str, end_date=date_format(end_date, SHORT_DATE_FORMAT) if end_date else start_date_str)
             if df.empty:
                 return
+            df = df_process(df, sort_column="交易日期", format_nan=True)
 
             # 转换数据
             stocks = []

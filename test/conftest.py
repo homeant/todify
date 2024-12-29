@@ -7,16 +7,13 @@ from app.core.database import engine
 @pytest.fixture(scope='function')
 def session():
     """Creates a new database session for a test."""
-    connection = engine.connect()
-    transaction = connection.begin()
-    SessionLocal = sessionmaker(bind=connection)
+    SessionLocal = sessionmaker(engine)
     session = SessionLocal()
 
     yield session
 
     session.close()
-    transaction.rollback()
-    connection.close()
+    engine.dispose()
 
 
 @pytest.fixture(name="db_session")

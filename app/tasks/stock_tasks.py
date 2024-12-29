@@ -24,31 +24,31 @@ def fetch_daily_data_task(self, start_date: str, end_date: str = None):
 
 
 @shared_task(bind=True, max_retries=3)
-def fetch_lhb_data_task(self, date: str):
+def fetch_lhb_data_task(self, start_date: str, end_date: str = None):
     """抓取龙虎榜数据的任务"""
     with get_db() as session:
         stock_service = get_stock_service(session)
         try:
-            stock_service.fetch_lhb_data(date)
-            logger.info(f"完成抓取{date}龙虎榜数据")
+            stock_service.fetch_lhb_data(date_parse(start_date).date(), date_parse(end_date).date() if end_date else None)
+            logger.info(f"完成抓取{start_date}龙虎榜数据")
         except Exception as ex:
             logger.exception(f"抓取日线数据失败: {str(ex)}")
             raise ex
 
 
 @shared_task(bind=True, max_retries=3)
-def fetch_block_trade_data_task(self, date: str):
+def fetch_block_trade_data_task(self, start_date: str, end_date: str = None):
     """抓取大宗交易数据的任务"""
     with get_db() as session:
         stock_service = get_stock_service(session)
-        stock_service.fetch_block_trade_data(date)
-        logger.info(f"完成抓取{date}大宗交易数据")
+        stock_service.fetch_block_trade_data(date_parse(start_date).date(), date_parse(end_date).date() if end_date else None)
+        logger.info(f"完成抓取{start_date}大宗交易数据")
 
 
 @shared_task(bind=True, max_retries=3)
-def fetch_daily_stock_data(self, data: str = None):
-    if data:
-        date = date_parse(data)
+def fetch_daily_stock_data(self, start_date: str = None, end_date: str = None):
+    if start_date:
+        date = date_parse(start_date)
     else:
         date = get_now()
     date_str = date_format(date, SHORT_DATE_FORMAT)
@@ -57,7 +57,7 @@ def fetch_daily_stock_data(self, data: str = None):
             fetch_daily_data_task.s(),
             fetch_lhb_data_task.s(),
             fetch_block_trade_data_task.s(),
-        ).apply(kwargs={"date": date_str})
+        ).apply(kwargs={"start_date": date_str, end_date: date_parse(end_date).date() if end_date else None})
         # stock_indicator_task.apply_async(kwargs={"date": date})
     else:
         logger.info(f"非交易日，不抓取数据, date: {date_str}")
