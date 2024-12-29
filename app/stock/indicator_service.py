@@ -31,6 +31,11 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
 
     def calculate_indicators(self, code: str, current_date: date) -> None:
         """计算股票技术指标"""
+        logger.info(f"开始计算股票{code}的技术指标")
+        old_indicator = self.datastore.get_indicator(code, current_date)
+        if old_indicator:
+            logger.info(f"股票{code}的技术指标已存在，跳过计算")
+            return
         # 获取前120天的数据用于计算指标
         start_date = date_parse(current_date).shift(days=-120).format("YYYY-MM-DD")
         try:
@@ -100,7 +105,6 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
 
             if pd.isna(row["ma60"]):  # 数据不足则跳过
                 return
-
             # 创建单个指标记录
             indicator = StockIndicator(
                 code=code,
@@ -135,7 +139,6 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
                 dma=row["dma"],
                 ama=row["ama"],
             )
-
             # 保存单个指标记录
             self.datastore.upsert(indicator)
 

@@ -97,6 +97,7 @@ def calculate_cci(
     result = ta.CCI(high, low, close, timeperiod=n)
     return pd.Series(result, index=close.index)
 
+
 def calculate_dma(
     close: pd.Series, short: int = 10, long: int = 50, m: int = 10
 ) -> tuple[pd.Series, pd.Series]:
