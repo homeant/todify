@@ -51,18 +51,16 @@ def fetch_daily_stock_data(self, data: str = None):
         date = date_parse(data)
     else:
         date = get_now()
-    for i in sorted(range(1, 90), reverse=True):
-        new_date = date.shift(days=-i)
-        if TradeCalendar().is_trade_time(new_date):
-            new_date_str = date_format(new_date, SHORT_DATE_FORMAT)
-            group(
-                fetch_daily_data_task.s(),
-                fetch_lhb_data_task.s(),
-                fetch_block_trade_data_task.s(),
-            ).apply(kwargs={"date": new_date_str})
-            # stock_indicator_task.apply_async(kwargs={"date": date})
-        else:
-            logger.info(f"非交易日，不抓取数据, date: {new_date}")
+    date_str = date_format(date, SHORT_DATE_FORMAT)
+    if TradeCalendar().is_trade_time(date):
+        group(
+            fetch_daily_data_task.s(),
+            fetch_lhb_data_task.s(),
+            fetch_block_trade_data_task.s(),
+        ).apply(kwargs={"date": date_str})
+        # stock_indicator_task.apply_async(kwargs={"date": date})
+    else:
+        logger.info(f"非交易日，不抓取数据, date: {date_str}")
 
 
 @shared_task(bind=True, max_retries=3)
