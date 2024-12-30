@@ -9,7 +9,6 @@ from app.core.database import Base
 from app.core.service import BaseService
 from app.models.stock import StockBlockTrade, StockDaily, StockLhb
 from app.stock.datastore import StockDatastore
-from app.tasks.stock_tasks import stock_indicator_task
 from app.utils.data_frame import df_process
 from app.utils.date import SHORT_DATE_FORMAT, date_format, date_parse
 
@@ -67,6 +66,7 @@ class StockService(BaseService[StockDatastore, Base]):
                     )
                 self.datastore.bulk_save(stocks)
                 if end_date is None or start_date == end_date:
+                    from app.tasks.stock_tasks import stock_indicator_task
                     stock_indicator_task.apply_async(
                         kwargs={
                             "code": code,
