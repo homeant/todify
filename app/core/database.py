@@ -32,11 +32,9 @@ def get_db() -> Generator[Session, None, None]:
         yield session
 
 
-@contextmanager
-def get_celery_db() -> Generator[Session, None, None]:
+def get_celery_db() -> Session:
     session = sessionmaker(bind=engine, expire_on_commit=False)
-    with session() as session:
-        yield session
+    return session()
 
 
 # FastAPI 依赖注入使用的函数
