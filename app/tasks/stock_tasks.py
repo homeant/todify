@@ -75,7 +75,7 @@ def fetch_daily_stock_data(self, start_date: str = None, end_date: str = None):
         ).apply(
             kwargs={
                 "start_date": date_str,
-                end_date: date_parse_to_date(end_date) if end_date else None,
+                "end_date": end_date if end_date else None,
             }
         )
         # stock_indicator_task.apply_async(kwargs={"date": date})
