@@ -43,7 +43,7 @@ class TradeCalendar(metaclass=Singleton):
             date = arrow.now()
         elif isinstance(date, datetime):
             date = arrow.get(date)
-        return date.floor("day") in [d.floor("day") for d in self.trade_days]
+        return date.date() in [d.date() for d in self.trade_days]
 
     def get_next_trade_day(self, date=None):
         """获取下一个交易日
