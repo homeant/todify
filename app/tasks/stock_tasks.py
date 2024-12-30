@@ -2,7 +2,7 @@ import logging
 
 from celery import group, shared_task
 
-from app.core.database import get_db
+from app.core.database import get_celery_db, close_celery_db, get_db_manager
 from app.stock.depends import get_stock_indicator_service, get_stock_service
 from app.stock.trade_calendar import TradeCalendar
 from app.utils.date import (
@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 @shared_task(bind=True, max_retries=3)
 def fetch_daily_data_task(self, start_date: str, end_date: str = None):
     """抓取日线数据的任务"""
-    with get_db() as session:
-        stock_service = get_stock_service(session)
+    with get_celery_db() as session:
         try:
+            stock_service = get_stock_service(session)
             stock_service.fetch_daily_data(
                 date_parse(start_date).date(),
                 date_parse(end_date).date() if end_date else None,
@@ -35,9 +35,9 @@ def fetch_daily_data_task(self, start_date: str, end_date: str = None):
 @shared_task(bind=True, max_retries=3)
 def fetch_lhb_data_task(self, start_date: str, end_date: str = None):
     """抓取龙虎榜数据的任务"""
-    with get_db() as session:
-        stock_service = get_stock_service(session)
+    with get_celery_db() as session:
         try:
+            stock_service = get_stock_service(session)
             stock_service.fetch_lhb_data(
                 date_parse_to_date(start_date),
                 date_parse_to_date(end_date) if end_date else None,
@@ -51,7 +51,7 @@ def fetch_lhb_data_task(self, start_date: str, end_date: str = None):
 @shared_task(bind=True, max_retries=3)
 def fetch_block_trade_data_task(self, start_date: str, end_date: str = None):
     """抓取大宗交易数据的任务"""
-    with get_db() as session:
+    with get_celery_db() as session:
         stock_service = get_stock_service(session)
         stock_service.fetch_block_trade_data(
             date_parse_to_date(start_date),
@@ -70,8 +70,8 @@ def fetch_daily_stock_data(self, start_date: str = None, end_date: str = None):
     if TradeCalendar().is_trade_day(date):
         group(
             fetch_daily_data_task.s(),
-            fetch_lhb_data_task.s(),
-            fetch_block_trade_data_task.s(),
+            # fetch_lhb_data_task.s(),
+            # fetch_block_trade_data_task.s(),
         ).apply(
             kwargs={
                 "start_date": date_str,
@@ -86,6 +86,6 @@ def fetch_daily_stock_data(self, start_date: str = None, end_date: str = None):
 @shared_task(bind=True, max_retries=3)
 def stock_indicator_task(self, code: str, current_date: str):
     logger.exception("start stock indicator task")
-    with get_db() as session:
+    with get_celery_db() as session:
         service = get_stock_indicator_service(session)
         service.calculate_indicators(code, date_parse_to_date(current_date))
