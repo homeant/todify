@@ -2,7 +2,7 @@ import logging
 
 from celery import group, shared_task
 
-from app.core.database import get_celery_db, close_celery_db, get_db_manager
+from app.core.database import get_celery_db
 from app.stock.depends import get_stock_indicator_service, get_stock_service
 from app.stock.trade_calendar import TradeCalendar
 from app.utils.date import (

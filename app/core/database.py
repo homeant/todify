@@ -1,10 +1,10 @@
-from contextlib import contextmanager
-from typing import Generator
-from sqlalchemy import QueuePool, create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker, Session
-from sqlalchemy.exc import SQLAlchemyError
 import logging
+from contextlib import contextmanager
 from threading import local
+from typing import Generator
+
+from sqlalchemy import QueuePool, create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 from app.config.setting import settings
 
@@ -27,14 +27,12 @@ engine = create_engine(
 
 # 创建会话工厂
 SessionLocal = sessionmaker(
-    expire_on_commit=False,
-    bind=engine,
-    autocommit=False,
-    autoflush=False
+    expire_on_commit=False, bind=engine, autocommit=False, autoflush=False
 )
 
 # 创建基础模型类
 Base = declarative_base()
+
 
 @contextmanager
 def get_db() -> Generator[Session, None, None]:
@@ -43,6 +41,7 @@ def get_db() -> Generator[Session, None, None]:
     """
     session = SessionLocal()
     yield session
+
 
 @contextmanager
 def get_celery_db() -> Generator[Session, None, None]:
@@ -60,6 +59,7 @@ def get_celery_db() -> Generator[Session, None, None]:
             session.close()
             if hasattr(thread_local, "session"):
                 delattr(thread_local, "session")
+
 
 # FastAPI 依赖注入使用的函数
 async def get_async_db():
