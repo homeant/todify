@@ -45,17 +45,6 @@ class TradeCalendar(metaclass=Singleton):
             date = arrow.get(date)
         return date.floor("day") in [d.floor("day") for d in self.trade_days]
 
-    def is_trade_time(self, dt=None):
-        """判断当前是否为交易时间"""
-        if dt is None:
-            dt = arrow.now()
-        elif isinstance(dt, datetime):
-            dt = arrow.get(dt)
-
-        if not self.is_trade_day(dt):
-            return False
-        return True
-
     def get_next_trade_day(self, date=None):
         """获取下一个交易日
 

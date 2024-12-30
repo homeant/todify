@@ -67,7 +67,7 @@ def fetch_daily_stock_data(self, start_date: str = None, end_date: str = None):
     else:
         date = get_now()
     date_str = date_format(date, SHORT_DATE_FORMAT)
-    if TradeCalendar().is_trade_time(date):
+    if TradeCalendar().is_trade_day(date):
         group(
             fetch_daily_data_task.s(),
             fetch_lhb_data_task.s(),
