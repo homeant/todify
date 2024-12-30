@@ -1,8 +1,12 @@
+import logging
+
 from celery import Celery
 from celery.schedules import crontab
 
 from app.config.celery import settings
 
+
+logger = logging.getLogger(__name__)
 
 def init_celery_app() -> Celery:
     celery_app = Celery(
@@ -11,6 +15,10 @@ def init_celery_app() -> Celery:
         backend=settings.backend_url,
         broker_connection_retry_on_startup=True,
         imports={"app.tasks.stock_tasks"},
+        worker_cancel_long_running_tasks_on_connection_loss=True,
+        worker_redirect_stdouts_level="DEBUG",
+        worker_concurrency=4,
+        worker_lost_wait=120,
     )
 
     # 配置定时任务
@@ -30,4 +38,5 @@ def init_celery_app() -> Celery:
         timezone="Asia/Shanghai",  # 设置时区为上海
         enable_utc=False,
     )
+    logger.info(f"{celery_app}")
     return celery_app
