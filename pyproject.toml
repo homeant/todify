@@ -14,7 +14,7 @@ uvicorn = "^0.32.1"
 pydantic = "^2.10.3"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-python-multipart = "^0.0.9"
+python-multipart = "^0.0.19"
 mysqlclient = "^2.2.6"
 akshare = "^1.15.42"
 langchain-openai = "^0.2.12"
