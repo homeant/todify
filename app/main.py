@@ -6,11 +6,7 @@ from app.api.user import router as user_router
 from app.core.celery_app import init_celery_app
 from app.core.database import engine
 from app.core.datastore import Base
-from app.logger import setup_logging
 
-file_path = "./logs/app.log"
-
-setup_logging(file_path)
 
 
 app = FastAPI()

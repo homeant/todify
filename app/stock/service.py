@@ -65,15 +65,15 @@ class StockService(BaseService[StockDatastore, Base]):
                         )
                     )
                 self.datastore.bulk_save(stocks)
-                if end_date is None or start_date == end_date:
-                    from app.tasks.stock_tasks import stock_indicator_task
-
-                    stock_indicator_task.apply_async(
-                        kwargs={
-                            "code": code,
-                            "current_date": start_date_str,
-                        }
-                    )
+                # if end_date is None or start_date == end_date:
+                #     from app.tasks.stock_tasks import stock_indicator_task
+                #
+                #     stock_indicator_task.apply_async(
+                #         kwargs={
+                #             "code": code,
+                #             "current_date": start_date_str,
+                #         }
+                #     )
             except Exception as e:
                 logger.exception(f"获取股票{code}数据失败:{str(e)}")
                 raise e
