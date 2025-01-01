@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
 
-    database_url: str = "mysql+mysqldb://codly_test:123456@192.168.2.10/codly_test_db"
+    database_url: str
     jwt_secret: str
     jwt_algorithm: str
     jwt_expire_seconds: int

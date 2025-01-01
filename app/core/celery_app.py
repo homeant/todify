@@ -38,5 +38,5 @@ def init_celery_app() -> Celery:
         timezone="Asia/Shanghai",  # 设置时区为上海
         enable_utc=False,
     )
-    logger.info(f"{celery_app}")
+    logger.info(f"{celery_app.conf}")
     return celery_app
