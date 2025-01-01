@@ -14,10 +14,10 @@ engine = create_engine(
     echo=True,
     future=True,
     poolclass=QueuePool,
-    pool_size=10,          # 最大连接数
-    max_overflow=5,        # 额外允许的溢出连接数
-    pool_recycle=3600,     # 回收时间，避免长时间空闲连接失效
-    pool_pre_ping=True     # 检测连接是否有效
+    pool_size=10,  # 最大连接数
+    max_overflow=5,  # 额外允许的溢出连接数
+    pool_recycle=3600,  # 回收时间，避免长时间空闲连接失效
+    pool_pre_ping=True,  # 检测连接是否有效
 )
 
 # 创建基础模型类

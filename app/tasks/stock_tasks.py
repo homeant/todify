@@ -84,8 +84,8 @@ def fetch_daily_stock_data(self, start_date: str = None, end_date: str = None):
 
 
 @shared_task(bind=True, max_retries=3)
-def stock_indicator_task(self, code: str, current_date: str):
+def stock_indicator_task(self, code: str, start_date: str):
     logger.exception("start stock indicator task")
     with get_celery_db() as session:
         service = get_stock_indicator_service(session)
-        service.calculate_indicators(code, date_parse_to_date(current_date))
+        service.calculate_indicators(code, date_parse_to_date(start_date))

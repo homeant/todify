@@ -5,8 +5,8 @@ from celery.schedules import crontab
 
 from app.config.celery import settings
 
-
 logger = logging.getLogger(__name__)
+
 
 def init_celery_app() -> Celery:
     celery_app = Celery(
@@ -27,6 +27,11 @@ def init_celery_app() -> Celery:
             "task": "app.tasks.stock_tasks.fetch_daily_stock_data",
             "schedule": crontab(hour="23", minute="52"),
             # "kwargs": ({"start_date": "20240701", "end_date": "20241229"}),
+        },
+        "stock_indicator_task": {
+            "task": "app.tasks.stock_tasks.stock_indicator_task",
+            "schedule": crontab(hour="10", minute="36"),
+            "kwargs": ({"start_date": "20240901"}),
         },
     }
 

@@ -29,25 +29,28 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
     def __init__(self, datastore: StockDatastore):
         super().__init__(datastore)
 
-    def calculate_indicators(self, code: str, current_date: date) -> None:
-        """计算股票技术指标"""
-        logger.info(f"开始计算股票{code}的技术指标")
-        old_indicator = self.datastore.get_indicator(code, current_date)
-        if old_indicator:
-            logger.info(f"股票{code}的技术指标已存在，跳过计算")
-            return
-        # 获取前120天的数据用于计算指标
-        start_date = date_parse(current_date).shift(days=-120).format("YYYY-MM-DD")
+    def calculate_indicators(self, code: str, start_date: date) -> None:
+        """计算股票技术指标
+
+        Args:
+            code: 股票代码
+            start_date: 开始保存指标的日期
+        """
+        logger.info(f"开始计算股票{code}的技术指标，开始日期: {start_date}")
+
+        # 获取开始日期前120天的数据用于计算指标
+        calc_start_date = date_parse(start_date).shift(days=-120).format("YYYY-MM-DD")
         try:
             # 获取历史数据
-            df = self._get_history_data(code, start_date)
+            df = self._get_history_data(code, calc_start_date)
             if df.empty:
                 return
 
-            # 计算均线 已验证
-            ma_periods = [5, 10, 20, 30, 60]
+            # 计算各种指标
             new_pd = pd.DataFrame()
 
+            # 计算均线
+            ma_periods = [5, 10, 20, 30, 60]
             for period in ma_periods:
                 new_pd[f"ma{period}"] = calculate_ma(df["close"], period)
 
@@ -100,47 +103,56 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
 
             new_pd = df_process(new_pd, format_nan=True)
 
-            # 只获取指定日期的数据
-            row = new_pd.loc[pd.to_datetime(current_date)]
+            # 遍历每一天的数据并保存
+            for index, row in new_pd.iterrows():
+                trade_date: date = pd.Timestamp(index).date()
 
-            if pd.isna(row["ma60"]):  # 数据不足则跳过
-                return
-            # 创建单个指标记录
-            indicator = StockIndicator(
-                code=code,
-                trade_date=current_date,
-                ma5=row["ma5"],
-                ma10=row["ma10"],
-                ma20=row["ma20"],
-                ma30=row["ma30"],
-                ma60=row["ma60"],
-                diff=row["diff"],
-                dea=row["dea"],
-                macd=row["macd"],
-                k=row["k"],
-                d=row["d"],
-                j=row["j"],
-                rsi6=row["rsi6"],
-                rsi12=row["rsi12"],
-                rsi24=row["rsi24"],
-                boll_up=row["boll_up"],
-                boll_mid=row["boll_mid"],
-                boll_down=row["boll_down"],
-                vma5=row["vma5"],
-                vma10=row["vma10"],
-                vma20=row["vma20"],
-                # pdi=row["pdi"],
-                # mdi=row["mdi"],
-                # adx=row["adx"],
-                # adxr=row["adxr"],
-                trix=row["trix"],
-                # matrix=row["matrix"],
-                cci=row["cci"],
-                dma=row["dma"],
-                ama=row["ama"],
-            )
-            # 保存单个指标记录
-            self.datastore.upsert(indicator)
+                # 只保存开始日期及之后的数据
+                if trade_date < start_date:
+                    continue
+
+                # 检查该日期的指标是否已存在
+                old_indicator = self.datastore.get_indicator(code, trade_date)
+                if old_indicator:
+                    logger.debug(f"股票{code}在{trade_date}的技术指标已存在，跳过")
+                    continue
+
+                # 如果ma60为空值则跳过（数据不足）
+                if pd.isna(row["ma60"]):
+                    continue
+
+                # 创建指标记录
+                indicator = StockIndicator(
+                    code=code,
+                    trade_date=trade_date,
+                    ma5=row["ma5"],
+                    ma10=row["ma10"],
+                    ma20=row["ma20"],
+                    ma30=row["ma30"],
+                    ma60=row["ma60"],
+                    diff=row["diff"],
+                    dea=row["dea"],
+                    macd=row["macd"],
+                    k=row["k"],
+                    d=row["d"],
+                    j=row["j"],
+                    rsi6=row["rsi6"],
+                    rsi12=row["rsi12"],
+                    rsi24=row["rsi24"],
+                    boll_up=row["boll_up"],
+                    boll_mid=row["boll_mid"],
+                    boll_down=row["boll_down"],
+                    vma5=row["vma5"],
+                    vma10=row["vma10"],
+                    vma20=row["vma20"],
+                    trix=row["trix"],
+                    cci=row["cci"],
+                    dma=row["dma"],
+                    ama=row["ama"],
+                )
+                # 保存指标记录
+                self.datastore.upsert(indicator)
+                logger.debug(f"保存股票{code}在{trade_date}的技术指标")
 
         except Exception as e:
             logger.exception(f"计算股票{code}指标失败: {str(e)}")

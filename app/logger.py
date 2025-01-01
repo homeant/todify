@@ -33,7 +33,7 @@ def setup_logging(
 
     # 配置根日志记录器
     logging.basicConfig(level=level, handlers=handlers)
-    logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
     # 捕获 Uvicorn 日志
     logger = logging.getLogger("app")
     return logger

@@ -7,8 +7,6 @@ from app.core.celery_app import init_celery_app
 from app.core.database import engine
 from app.core.datastore import Base
 
-
-
 app = FastAPI()
 
 celery_app = init_celery_app()
