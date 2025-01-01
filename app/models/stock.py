@@ -66,7 +66,7 @@ class StockIndicator(Base):
     id = Column(BigInteger, primary_key=True, index=True)
     code = Column(String(10), index=True, nullable=False, comment="股票代码")
     trade_date = Column(Date, index=True, nullable=False, comment="交易日期")
-
+    name = Column(String(50), nullable=False, comment="股票名称")
     # 均线指标 已验证
     ma5 = Column(Numeric(10, 2), comment="5日均线")
     ma10 = Column(Numeric(10, 2), comment="10日均线")

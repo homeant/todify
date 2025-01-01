@@ -4,11 +4,12 @@ from typing import Optional
 import aiohttp
 
 from app.config.telegram import settings
+from app.core.singleton import Singleton
 
 logger = logging.getLogger(__name__)
 
 
-class TelegramBot:
+class TelegramBot(metaclass=Singleton):
     """Telegram机器人"""
 
     def __init__(self):
@@ -35,41 +36,4 @@ class TelegramBot:
 
         except Exception as e:
             logger.error(f"发送Telegram消息异常: {str(e)}")
-            return False
-
-    async def send_signals(self, signals: list, date: str) -> bool:
-        """发送交易信号"""
-        try:
-            # 按策略分组
-            strategy_signals = {}
-            for signal in signals:
-                if signal.strategy not in strategy_signals:
-                    strategy_signals[signal.strategy] = {"buy": [], "sell": []}
-                strategy_signals[signal.strategy][signal.signal_type].append(signal)
-
-            # 构建消息
-            message = f"📊 {date} 交易信号\n\n"
-
-            for strategy, data in strategy_signals.items():
-                message += f"🔸 {strategy}\n"
-
-                # 买入信号
-                if data["buy"]:
-                    message += "买入:\n"
-                    for signal in data["buy"]:
-                        message += f"- {signal.code} {signal.name}\n"
-
-                # 卖出信号
-                if data["sell"]:
-                    message += "卖出:\n"
-                    for signal in data["sell"]:
-                        message += f"- {signal.code} {signal.name}\n"
-
-                message += "\n"
-
-            # 发送消息
-            return await self.send_message(message)
-
-        except Exception as e:
-            logger.error(f"发送交易信号异常: {str(e)}")
             return False

@@ -3,7 +3,7 @@ import logging
 from celery import group, shared_task
 
 from app.core.database import get_celery_db
-from app.stock.depends import get_stock_indicator_service, get_stock_service
+from app.stock.depends import get_stock_service
 from app.stock.trade_calendar import TradeCalendar
 from app.utils.date import (
     SHORT_DATE_FORMAT,
@@ -81,4 +81,3 @@ def fetch_daily_stock_data(self, start_date: str = None, end_date: str = None):
         # stock_indicator_task.apply_async(kwargs={"date": date})
     else:
         logger.info(f"非交易日，不抓取数据, date: {date_str}")
-

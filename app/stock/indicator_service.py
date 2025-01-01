@@ -49,6 +49,9 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
             # 计算各种指标
             new_pd = pd.DataFrame()
 
+            # 获取股票名称
+            stock_name = df["name"].iloc[-1]
+
             # 计算均线
             ma_periods = [5, 10, 20, 30, 60]
             for period in ma_periods:
@@ -105,7 +108,7 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
 
             # 遍历每一天的数据并保存
             for index, row in new_pd.iterrows():
-                trade_date: date = pd.Timestamp(index).date()
+                trade_date = pd.Timestamp(index).date()
 
                 # 只保存开始日期及之后的数据
                 if trade_date < start_date:
@@ -124,6 +127,7 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
                 # 创建指标记录
                 indicator = StockIndicator(
                     code=code,
+                    name=stock_name,
                     trade_date=trade_date,
                     ma5=row["ma5"],
                     ma10=row["ma10"],
@@ -171,6 +175,7 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
             data.append(
                 {
                     "code": stock.code,
+                    "name": stock.name,
                     "open": float(stock.open),
                     "high": float(stock.high),
                     "low": float(stock.low),

@@ -5,7 +5,7 @@ from celery import shared_task
 
 from app.core.database import get_celery_db
 from app.stock.depends import get_stock_indicator_service
-from app.utils.date import date_parse_to_date, now_format, SHORT_DATE_FORMAT
+from app.utils.date import SHORT_DATE_FORMAT, date_parse_to_date, now_format
 
 logger = logging.getLogger(__name__)
 
