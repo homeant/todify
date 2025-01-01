@@ -1,7 +1,7 @@
 from langchain_core.language_models import BaseChatModel
 from langchain_openai.chat_models.base import BaseChatOpenAI
 
-from app.config.celery import settings
+from app.config.setting import settings
 from app.core.singleton import Singleton
 
 MODEL_NAME_MAPPING = {

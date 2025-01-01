@@ -50,8 +50,8 @@ class StockDatastore(BaseDatastore[Base]):
     def get_indicator(self, code: str, trade_date: date) -> StockIndicator:
         """获取股票指标数据"""
         st = select(StockIndicator).where(
-            StockIndicator.code == code, StockIndicator.trade_date == trade_date
-        )
+            StockIndicator.code == code
+        ).where(StockIndicator.trade_date == trade_date)
         return self._fetch_one(st)
 
     def get_indicators_by_date(self, trade_date: date) -> list[StockIndicator]:
@@ -71,9 +71,9 @@ class StockDatastore(BaseDatastore[Base]):
     def get_signal(self, code: str, trade_date: date) -> Optional[StockSignal]:
         """获取指定日期的股票信号"""
         return self._fetch_one(
-            select(StockSignal).where(
-                StockSignal.code == code).where(StockSignal.trade_date == trade_date
-            )
+            select(StockSignal)
+            .where(StockSignal.code == code)
+            .where(StockSignal.trade_date == trade_date)
         )
 
     def get_recent_indicators(
@@ -83,7 +83,8 @@ class StockDatastore(BaseDatastore[Base]):
     ) -> List[StockIndicator]:
         """获取指定日期前N天的指标数据"""
         return self._fetch_all(
-            select(StockIndicator).where(
-                StockIndicator.code == code).where(StockIndicator.trade_date >= trade_date
-            ).order_by(StockIndicator.trade_date.desc())
+            select(StockIndicator)
+            .where(StockIndicator.code == code)
+            .where(StockIndicator.trade_date >= trade_date)
+            .order_by(StockIndicator.trade_date.desc())
         )
