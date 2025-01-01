@@ -82,10 +82,3 @@ def fetch_daily_stock_data(self, start_date: str = None, end_date: str = None):
     else:
         logger.info(f"非交易日，不抓取数据, date: {date_str}")
 
-
-@shared_task(bind=True, max_retries=3)
-def stock_indicator_task(self, code: str, start_date: str):
-    logger.exception("start stock indicator task")
-    with get_celery_db() as session:
-        service = get_stock_indicator_service(session)
-        service.calculate_indicators(code, date_parse_to_date(start_date))
