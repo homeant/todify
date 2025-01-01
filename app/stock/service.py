@@ -47,7 +47,7 @@ class StockService(BaseService[StockDatastore, Base]):
                 stocks = []
                 for _, data in df.iterrows():
                     trade_date = date_parse(data["日期"]).date()
-                    stock = self.datastore.get_stock_by_code_and_date(code, trade_date)
+                    stock = self.datastore.get_stock_daily(code, trade_date)
                     if stock:
                         continue
                     stocks.append(

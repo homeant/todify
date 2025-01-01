@@ -5,7 +5,7 @@ from celery import shared_task
 
 from app.core.database import get_celery_db
 from app.stock.depends import get_stock_indicator_service
-from app.utils.date import SHORT_DATE_FORMAT, date_parse_to_date, now_format
+from app.utils.date import SHORT_DATE_FORMAT, now_format, get_date
 
 logger = logging.getLogger(__name__)
 
@@ -19,4 +19,4 @@ def calculate_indicators_task(self, start_date: str = None):
         stock_info = ak.stock_info_a_code_name()
         service = get_stock_indicator_service(session)
         for _, row in stock_info.iterrows():
-            service.calculate_indicators(row["code"], date_parse_to_date(start_date))
+            service.calculate_indicators(row["code"], get_date(start_date))

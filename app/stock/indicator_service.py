@@ -51,6 +51,8 @@ class StockIndicatorService(BaseService[StockDatastore, StockIndicator]):
 
             # 获取股票名称
             stock_name = df["name"].iloc[-1]
+            if stock_name is None:
+                stock_name = self.datastore.get_stock_daily(code, start_date).name
 
             # 计算均线
             ma_periods = [5, 10, 20, 30, 60]

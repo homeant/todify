@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, Column, Date, Numeric, String
+from sqlalchemy import BigInteger, Boolean, Column, Date, Numeric, String
 
 from app.core.database import Base
 from app.utils.date import get_now_millis
@@ -120,7 +120,7 @@ class StockIndicator(Base):
 
 
 class StockSignal(Base):
-    """股票交易信号"""
+    """股票技术指标信号"""
 
     __tablename__ = "cn_stock_signal"
 
@@ -128,7 +128,33 @@ class StockSignal(Base):
     code = Column(String(10), index=True, nullable=False, comment="股票代码")
     name = Column(String(100), nullable=False, comment="股票名称")
     trade_date = Column(Date, index=True, nullable=False, comment="交易日期")
-    strategy = Column(String(50), nullable=False, comment="策略名称")
-    signal_type = Column(String(10), nullable=False, comment="信号类型(buy/sell)")
-    signal_desc = Column(String(200), comment="信号描述")
+
+    # MACD信号
+    macd_golden_cross = Column(Boolean, default=False, comment="MACD金叉")
+    macd_dead_cross = Column(Boolean, default=False, comment="MACD死叉")
+
+    # KDJ信号
+    kdj_golden_cross = Column(Boolean, default=False, comment="KDJ金叉")
+    kdj_dead_cross = Column(Boolean, default=False, comment="KDJ死叉")
+    kdj_oversold = Column(Boolean, default=False, comment="KDJ超卖")
+    kdj_overbought = Column(Boolean, default=False, comment="KDJ超买")
+
+    # RSI信号
+    rsi_oversold = Column(Boolean, default=False, comment="RSI超卖")
+    rsi_overbought = Column(Boolean, default=False, comment="RSI超买")
+
+    # 布林带信号
+    boll_break_up = Column(Boolean, default=False, comment="突破布林上轨")
+    boll_break_down = Column(Boolean, default=False, comment="突破布林下轨")
+
+    # 均线信号
+    ma_golden_cross = Column(
+        Boolean, default=False, comment="均线金叉(5日线上穿20日线)"
+    )
+    ma_dead_cross = Column(Boolean, default=False, comment="均线死叉(5日线下穿20日线)")
+
+    # AI分析结果
+    ai_analysis = Column(String(1000), comment="AI分析结果")
+    ai_score = Column(Numeric(5, 2), comment="AI评分(0-100)")
+
     created_at = Column(BigInteger, default=get_now_millis())

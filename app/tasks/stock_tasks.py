@@ -9,8 +9,7 @@ from app.utils.date import (
     SHORT_DATE_FORMAT,
     date_format,
     date_parse,
-    date_parse_to_date,
-    get_now,
+    get_now, get_date,
 )
 
 logger = logging.getLogger(__name__)
@@ -39,8 +38,8 @@ def fetch_lhb_data_task(self, start_date: str, end_date: str = None):
         try:
             stock_service = get_stock_service(session)
             stock_service.fetch_lhb_data(
-                date_parse_to_date(start_date),
-                date_parse_to_date(end_date) if end_date else None,
+                get_date(start_date),
+                get_date(end_date) if end_date else None,
             )
             logger.info(f"完成抓取{start_date}龙虎榜数据")
         except Exception as ex:
@@ -54,8 +53,8 @@ def fetch_block_trade_data_task(self, start_date: str, end_date: str = None):
     with get_celery_db() as session:
         stock_service = get_stock_service(session)
         stock_service.fetch_block_trade_data(
-            date_parse_to_date(start_date),
-            date_parse_to_date(end_date) if end_date else None,
+            get_date(start_date),
+            get_date(end_date) if end_date else None,
         )
         logger.info(f"完成抓取{start_date}大宗交易数据")
 

@@ -29,7 +29,7 @@ def date_format(
     return arrow.get(value).format(format_str)
 
 
-def now_format(format_str: str = DEFAULT_FORMAT):
+def now_format(format_str: str = DEFAULT_FORMAT) -> str:
     return date_format(get_now(), format_str)
 
 
@@ -37,5 +37,5 @@ def date_parse(value: Union[str | datetime, date]) -> Arrow:
     return arrow.get(value)
 
 
-def date_parse_to_date(value: Union[str | datetime, date]) -> date:
-    return date_parse(value).date()
+def get_date(value: Union[str | datetime, date], days: int = 0) -> date:
+    return date_parse(value).shift(days=days).date()
