@@ -2,7 +2,7 @@ import logging
 from typing import List
 
 from app.models.stock import StockIndicator, StockSignal
-from app.stock.strategy._strategy import BaseStrategy
+from app.stock.signal._strategy import BaseStrategy
 
 logger = logging.getLogger(__name__)
 
