@@ -14,6 +14,7 @@ def get_ma_resistance_price(ma_long, current_price):
     """
     return ma_long if current_price < ma_long else None
 
+
 def get_recent_low_df(df, days=20):
     """
     使用 DataFrame 计算最近低点
@@ -24,9 +25,10 @@ def get_recent_low_df(df, days=20):
     if len(df) < days:
         raise ValueError("数据不足以计算最近低点")
     recent_data = df[-days:]
-    recent_low = recent_data['low'].min()
-    recent_date = recent_data[recent_data['low'] == recent_low].index[0]
+    recent_low = recent_data["low"].min()
+    recent_date = recent_data[recent_data["low"] == recent_low].index[0]
     return recent_date, recent_low
+
 
 # 600开头的股票是上证A股，属于大盘股
 # 600开头的股票是上证A股，属于大盘股，其中6006开头的股票是最早上市的股票，
@@ -37,12 +39,12 @@ def get_recent_low_df(df, days=20):
 # 300开头的股票是创业板股票；400开头的股票是三板市场股票。
 def is_a_stock(code):
     # 上证A股  # 深证A股
-    return code.startswith(('600', '601', '000', '001', '002'))
+    return code.startswith(("600", "601", "000", "001", "002"))
 
 
 # 过滤掉 st 股票。
 def is_not_st(name):
-    return not name.startswith(('*ST', 'ST'))
+    return not name.startswith(("*ST", "ST"))
 
 
 # 过滤价格，如果没有基本上是退市了。

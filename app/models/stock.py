@@ -1,8 +1,14 @@
 import pandas as pd
+from pydantic import BaseModel
 from sqlalchemy import BigInteger, Boolean, Column, Date, Numeric, String
 
 from app.core.database import Base
 from app.utils.date import get_now_millis
+
+
+class StockInfo(BaseModel):
+    code: str
+    name: str
 
 
 class StockDaily(Base):

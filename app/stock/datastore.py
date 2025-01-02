@@ -49,9 +49,11 @@ class StockDatastore(BaseDatastore[Base]):
 
     def get_indicator(self, code: str, trade_date: date) -> StockIndicator:
         """获取股票指标数据"""
-        st = select(StockIndicator).where(
-            StockIndicator.code == code
-        ).where(StockIndicator.trade_date == trade_date)
+        st = (
+            select(StockIndicator)
+            .where(StockIndicator.code == code)
+            .where(StockIndicator.trade_date == trade_date)
+        )
         return self._fetch_one(st)
 
     def get_indicators_by_date(self, trade_date: date) -> list[StockIndicator]:
@@ -76,9 +78,15 @@ class StockDatastore(BaseDatastore[Base]):
             .where(StockSignal.trade_date == trade_date)
         )
 
-    def get_signal_history(self, code: str, trade_date: Optional[date] = None) -> list[StockSignal]:
+    def get_signal_history(
+        self, code: str, trade_date: Optional[date] = None
+    ) -> list[StockSignal]:
         """获取股票信号历史数据"""
-        st = select(StockSignal).where(StockSignal.code == code).order_by(StockSignal.trade_date)
+        st = (
+            select(StockSignal)
+            .where(StockSignal.code == code)
+            .order_by(StockSignal.trade_date)
+        )
         if trade_date:
             st = st.where(StockSignal.trade_date >= trade_date)
         return self._fetch_all(st)

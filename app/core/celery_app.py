@@ -14,7 +14,11 @@ def init_celery_app() -> Celery:
         broker=settings.broker_url,
         backend=settings.backend_url,
         broker_connection_retry_on_startup=True,
-        imports={"app.tasks.stock_tasks", "app.tasks.stock_indicator_task", 'app.tasks.stock_signal_task'},
+        imports={
+            "app.tasks.stock_tasks",
+            "app.tasks.stock_indicator_task",
+            "app.tasks.stock_signal_task",
+        },
         worker_cancel_long_running_tasks_on_connection_loss=True,
         worker_redirect_stdouts_level="DEBUG",
         worker_concurrency=4,

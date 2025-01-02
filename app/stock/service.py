@@ -7,7 +7,7 @@ import pandas as pd
 
 from app.core.database import Base
 from app.core.service import BaseService
-from app.models.stock import StockBlockTrade, StockDaily, StockLhb
+from app.models.stock import StockBlockTrade, StockDaily, StockInfo, StockLhb
 from app.stock.datastore import StockDatastore
 from app.utils.data_frame import df_process
 from app.utils.date import SHORT_DATE_FORMAT, date_format, date_parse
@@ -20,15 +20,19 @@ class StockService(BaseService[StockDatastore, Base]):
     def __init__(self, datastore: StockDatastore):
         super().__init__(datastore)
 
+    @classmethod
+    def fetch_stock_info_list(cls) -> list[StockInfo]:
+        stock_df = ak.stock_info_a_code_name()
+        stock_df = stock_df.loc[stock_df["code"].apply(is_a_stock)]
+        stock_df = stock_df.to_dict(orient="records")
+        return [StockInfo(**a) for a in stock_df]
+
     def fetch_daily_data(self, start_date: date, end_date: Optional[date]) -> None:
         """抓取每日股票数据"""
-        # 获取股票列表
-        stock_info = ak.stock_info_a_code_name()
-        stock_info = stock_info.loc[stock_info['code'].apply(is_a_stock)]
 
         # 遍历获取每只股票数据
-        for _, row in stock_info.iterrows():
-            code = row["code"]
+        for row in self.fetch_stock_info_list():
+            code = row.code
             try:
                 # 获取日线数据
                 start_date_str = date_format(start_date, SHORT_DATE_FORMAT)
@@ -55,7 +59,7 @@ class StockService(BaseService[StockDatastore, Base]):
                     stocks.append(
                         StockDaily(
                             code=code,
-                            name=row["name"],
+                            name=row.name,
                             trade_date=trade_date,
                             open=data["开盘"],
                             high=data["最高"],

@@ -7,17 +7,21 @@ from app.core.service import BaseService
 from app.models.stock import StockSignal
 from app.stock.datastore import StockDatastore
 from app.utils.date import get_date, get_today
-from app.utils.stock import get_recent_low_df, get_ma_support_price
+from app.utils.stock import get_ma_support_price, get_recent_low_df
 
 logger = logging.getLogger(__name__)
 
+
 class PriceRebound:
     def __init__(
-        self, signal: StockSignal,
-        current_price, boll_lower,
+        self,
+        signal: StockSignal,
+        current_price,
+        boll_lower,
         recent_low,
-        ma_short, ma_long,
-        rsi_value
+        ma_short,
+        ma_long,
+        rsi_value,
     ):
         """
         :param signal: 指标
@@ -79,11 +83,13 @@ class PriceRebound:
         """
         综合判断是否发生回升
         """
-        if (self.rebound_boll() or
-            self.rebound_support() or
-            self.rebound_rsi() or
-            self.rebound_ma() or
-            self.rebound_volatility()):
+        if (
+            self.rebound_boll()
+            or self.rebound_support()
+            or self.rebound_rsi()
+            or self.rebound_ma()
+            or self.rebound_volatility()
+        ):
             return True
         return False
 
@@ -119,7 +125,9 @@ class StockSignalService(BaseService[StockDatastore, StockSignal]):
                     continue
 
                 # 获取前一天的指标数据
-                prev_indicator = self.datastore.get_indicator(code, get_date(current_date, days=-1))
+                prev_indicator = self.datastore.get_indicator(
+                    code, get_date(current_date, days=-1)
+                )
                 if not prev_indicator:
                     current_date = get_date(current_date, days=1)
                     continue
@@ -130,10 +138,14 @@ class StockSignalService(BaseService[StockDatastore, StockSignal]):
 
                 # 计算所有信号
                 price_rebound = False
-                prev_signals = self.datastore.get_signal_history(code, get_date(current_date, days=-15))
+                prev_signals = self.datastore.get_signal_history(
+                    code, get_date(current_date, days=-15)
+                )
                 if prev_signals:
                     last_signal = prev_signals[-1]
-                    stock_daily_list = self.datastore.get_stock_history(code, get_date(current_date, days=-30))
+                    stock_daily_list = self.datastore.get_stock_history(
+                        code, get_date(current_date, days=-30)
+                    )
                     dfs = [a.to_df() for a in stock_daily_list]
                     df = pd.concat(dfs)
                     _, recent_low = get_recent_low_df(df)
@@ -151,11 +163,15 @@ class StockSignalService(BaseService[StockDatastore, StockSignal]):
                     name=stock_name,
                     trade_date=current_date,
                     # MACD信号
-                    macd_golden_cross=prev_indicator.diff < prev_indicator.dea and current_indicator.diff > current_indicator.dea,
-                    macd_dead_cross=prev_indicator.diff > prev_indicator.dea and current_indicator.diff < current_indicator.dea,
+                    macd_golden_cross=prev_indicator.diff < prev_indicator.dea
+                    and current_indicator.diff > current_indicator.dea,
+                    macd_dead_cross=prev_indicator.diff > prev_indicator.dea
+                    and current_indicator.diff < current_indicator.dea,
                     # KDJ信号
-                    kdj_golden_cross=prev_indicator.k < prev_indicator.d and current_indicator.k > current_indicator.d,
-                    kdj_dead_cross=prev_indicator.k > prev_indicator.d and current_indicator.k < current_indicator.d,
+                    kdj_golden_cross=prev_indicator.k < prev_indicator.d
+                    and current_indicator.k > current_indicator.d,
+                    kdj_dead_cross=prev_indicator.k > prev_indicator.d
+                    and current_indicator.k < current_indicator.d,
                     kdj_oversold=current_indicator.k < 20,
                     kdj_overbought=current_indicator.k > 80,
                     # RSI信号
@@ -165,9 +181,11 @@ class StockSignalService(BaseService[StockDatastore, StockSignal]):
                     boll_break_up=stock_daily.close > current_indicator.boll_up,
                     boll_break_down=stock_daily.close < current_indicator.boll_down,
                     # 均线信号
-                    ma_golden_cross=prev_indicator.ma5 < prev_indicator.ma20 and current_indicator.ma5 > current_indicator.ma20,
-                    ma_dead_cross=prev_indicator.ma5 > prev_indicator.ma20 and current_indicator.ma5 < current_indicator.ma20,
-                    price_rebound=price_rebound
+                    ma_golden_cross=prev_indicator.ma5 < prev_indicator.ma20
+                    and current_indicator.ma5 > current_indicator.ma20,
+                    ma_dead_cross=prev_indicator.ma5 > prev_indicator.ma20
+                    and current_indicator.ma5 < current_indicator.ma20,
+                    price_rebound=price_rebound,
                 )
 
                 # 检查是否有任何信号为True
