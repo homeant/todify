@@ -9,6 +9,7 @@ from app.core.database import Base
 from app.core.service import BaseService
 from app.models.stock import StockBlockTrade, StockDaily, StockInfo, StockLhb
 from app.stock.datastore import StockDatastore
+from app.tasks.stock_indicator_task import calculate_indicators_task
 from app.utils.data_frame import df_process
 from app.utils.date import SHORT_DATE_FORMAT, date_format, date_parse
 from app.utils.stock import is_a_stock
@@ -71,6 +72,9 @@ class StockService(BaseService[StockDatastore, Base]):
                         )
                     )
                 self.datastore.bulk_save(stocks)
+                calculate_indicators_task.apply_async(
+                    kwargs={"code": code, "start_date": date_format(start_date, SHORT_DATE_FORMAT)}
+                )
             except Exception as e:
                 logger.exception(f"获取股票{code}数据失败:{str(e)}")
                 raise e
