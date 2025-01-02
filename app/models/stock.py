@@ -1,3 +1,4 @@
+import pandas as pd
 from sqlalchemy import BigInteger, Boolean, Column, Date, Numeric, String
 
 from app.core.database import Base
@@ -21,6 +22,24 @@ class StockDaily(Base):
     amount = Column(BigInteger, comment="成交额")
     turnover = Column(Numeric(10, 2), comment="换手率")
     created_at = Column(BigInteger, default=get_now_millis())
+
+    def to_df(self):
+        data = [
+            {
+                "code": self.code,
+                "name": self.name,
+                "open": float(self.open),
+                "high": float(self.high),
+                "low": float(self.low),
+                "close": float(self.close),
+                "volume": self.volume,
+                "amount": self.amount,
+            }
+        ]
+
+        df = pd.DataFrame(data)
+        df.index = pd.to_datetime([self.trade_date])
+        return df
 
 
 class StockLhb(Base):
@@ -152,6 +171,8 @@ class StockSignal(Base):
         Boolean, default=False, comment="均线金叉(5日线上穿20日线)"
     )
     ma_dead_cross = Column(Boolean, default=False, comment="均线死叉(5日线下穿20日线)")
+
+    price_rebound = Column(Boolean, default=False, comment="价格回升")
 
     # AI分析结果
     ai_analysis = Column(String(1000), comment="AI分析结果")

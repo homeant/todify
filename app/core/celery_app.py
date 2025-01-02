@@ -23,21 +23,21 @@ def init_celery_app() -> Celery:
 
     # 配置定时任务
     celery_app.conf.beat_schedule = {
-        # "fetch_daily_stock_data": {
-        #     "task": "app.tasks.stock_tasks.fetch_daily_stock_data",
-        #     "schedule": crontab(hour="23", minute="52"),
-        #     # "kwargs": ({"start_date": "20240701", "end_date": "20241229"}),
-        # },
+        "fetch_daily_stock_data": {
+            "task": "app.tasks.stock_tasks.fetch_daily_stock_data",
+            "schedule": crontab(hour="15", minute="10"),
+            # "kwargs": ({"start_date": "20240701", "end_date": "20241229"}),
+        },
         # "calculate_indicators_task": {
         #     "task": "app.tasks.stock_indicator_task.calculate_indicators_task",
         #     "schedule": crontab(hour="10", minute="46"),
         #     # "kwargs": ({"start_date": "20240901"}),
         # },
-        "calculate_signals_task": {
-            "task": "app.tasks.stock_signal_task.calculate_signals_task",
-            "schedule": crontab(hour="15", minute="01"),
-            "kwargs": ({"start_date": "20240901"}),
-        },
+        # "calculate_signals_task": {
+        #     "task": "app.tasks.stock_signal_task.calculate_signals_task",
+        #     "schedule": crontab(hour="15", minute="01"),
+        #     "kwargs": ({"start_date": "20240901"}),
+        # },
     }
 
     # 其他 Celery 配置

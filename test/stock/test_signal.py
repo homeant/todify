@@ -9,4 +9,4 @@ from app.utils.date import get_date
 def test_signal(session: Session):
     service = StockSignalService(StockDatastore(session))
     Base.metadata.create_all(engine)
-    service.calculate_signals("000001", get_date("20241227"))
+    service.calculate_signals("000001", get_date("20241202"))

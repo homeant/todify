@@ -11,6 +11,7 @@ from app.models.stock import StockBlockTrade, StockDaily, StockLhb
 from app.stock.datastore import StockDatastore
 from app.utils.data_frame import df_process
 from app.utils.date import SHORT_DATE_FORMAT, date_format, date_parse
+from app.utils.stock import is_a_stock
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,7 @@ class StockService(BaseService[StockDatastore, Base]):
         """抓取每日股票数据"""
         # 获取股票列表
         stock_info = ak.stock_info_a_code_name()
+        stock_info = stock_info.loc[stock_info['code'].apply(is_a_stock)]
 
         # 遍历获取每只股票数据
         for _, row in stock_info.iterrows():

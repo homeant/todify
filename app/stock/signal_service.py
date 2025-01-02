@@ -1,12 +1,91 @@
 import logging
 from datetime import date
 
+import pandas as pd
+
 from app.core.service import BaseService
 from app.models.stock import StockSignal
 from app.stock.datastore import StockDatastore
 from app.utils.date import get_date, get_today
+from app.utils.stock import get_recent_low_df, get_ma_support_price
 
 logger = logging.getLogger(__name__)
+
+class PriceRebound:
+    def __init__(
+        self, signal: StockSignal,
+        current_price, boll_lower,
+        recent_low,
+        ma_short, ma_long,
+        rsi_value
+    ):
+        """
+        :param signal: 指标
+        :param current_price: 当前价格
+        :param boll_lower: 布林带下轨
+        :param recent_low: 最近低点
+        :param ma_short: 短期均线
+        :param rsi_value: RSI值
+        """
+        self.signal = signal
+        self.current_price = current_price
+        self.boll_lower = boll_lower
+        self.recent_low = recent_low
+        self.ma_short = ma_short
+        self.ma_long = ma_long
+        self.rsi_value = rsi_value
+
+    def rebound_boll(self):
+        """
+        判断价格是否突破布林带下轨并回升
+        """
+        if self.signal.boll_break_down and self.current_price > self.boll_lower:
+            return True
+        return False
+
+    def rebound_support(self):
+        """
+        判断价格是否突破支撑位并回升
+        """
+        if self.current_price < get_ma_support_price(self.ma_short, self.current_price):
+            return True
+        return False
+
+    def rebound_rsi(self):
+        """
+        判断RSI是否从超卖区回升
+        """
+        if self.signal.rsi_oversold and self.rsi_value > 30:  # 假设超卖区为30
+            return True
+        return False
+
+    def rebound_ma(self):
+        """
+        判断价格是否突破短期均线并回升
+        """
+        if self.current_price > self.ma_short:
+            return True
+        return False
+
+    def rebound_volatility(self):
+        """
+        判断价格是否从震荡区间的最低点回升
+        """
+        if self.current_price > self.recent_low * 1.05:  # 假设回升超过5%
+            return True
+        return False
+
+    def is_rebound(self):
+        """
+        综合判断是否发生回升
+        """
+        if (self.rebound_boll() or
+            self.rebound_support() or
+            self.rebound_rsi() or
+            self.rebound_ma() or
+            self.rebound_volatility()):
+            return True
+        return False
 
 
 class StockSignalService(BaseService[StockDatastore, StockSignal]):
@@ -50,6 +129,23 @@ class StockSignalService(BaseService[StockDatastore, StockSignal]):
                     stock_name = stock_daily.name
 
                 # 计算所有信号
+                price_rebound = False
+                prev_signals = self.datastore.get_signal_history(code, get_date(current_date, days=-15))
+                if prev_signals:
+                    last_signal = prev_signals[-1]
+                    stock_daily_list = self.datastore.get_stock_history(code, get_date(current_date, days=-30))
+                    dfs = [a.to_df() for a in stock_daily_list]
+                    df = pd.concat(dfs)
+                    _, recent_low = get_recent_low_df(df)
+                    price_rebound = PriceRebound(
+                        signal=last_signal,
+                        current_price=stock_daily.close,
+                        ma_short=prev_indicator.ma5,
+                        ma_long=prev_indicator.ma60,
+                        boll_lower=prev_indicator.boll_down,
+                        rsi_value=prev_indicator.rsi6,
+                        recent_low=recent_low,
+                    ).is_rebound()
                 signal = StockSignal(
                     code=code,
                     name=stock_name,
@@ -71,6 +167,7 @@ class StockSignalService(BaseService[StockDatastore, StockSignal]):
                     # 均线信号
                     ma_golden_cross=prev_indicator.ma5 < prev_indicator.ma20 and current_indicator.ma5 > current_indicator.ma20,
                     ma_dead_cross=prev_indicator.ma5 > prev_indicator.ma20 and current_indicator.ma5 < current_indicator.ma20,
+                    price_rebound=price_rebound
                 )
 
                 # 检查是否有任何信号为True
