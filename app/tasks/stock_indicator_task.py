@@ -12,13 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task(bind=True, max_retries=3)
-def calculate_indicators_task(self, start_date: str = None):
+def calculate_indicators_task(self, code: str, start_date: str = None):
     logger.info("start stock indicator task")
     if start_date is None:
         start_date = now_format(SHORT_DATE_FORMAT)
     with get_celery_db() as session:
-        stock_service = StockService(StockDatastore(session))
-        stock_info_list = stock_service.fetch_stock_info_list()
         service = get_stock_indicator_service(session)
-        for row in stock_info_list:
-            service.calculate_indicators(row.code, get_date(start_date))
+        service.calculate_indicators(code, get_date(start_date))
