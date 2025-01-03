@@ -23,17 +23,16 @@ engine = create_engine(
 # 创建基础模型类
 Base = declarative_base()
 
+SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 @contextmanager
 def get_db() -> Generator[Session, None, None]:
-    session = sessionmaker(bind=engine, expire_on_commit=False)
-    with session() as session:
+    with SessionLocal() as session:
         yield session
 
 
 def get_celery_db() -> Session:
-    session = sessionmaker(bind=engine, expire_on_commit=False)
-    return session()
+    return SessionLocal()
 
 
 # FastAPI 依赖注入使用的函数
