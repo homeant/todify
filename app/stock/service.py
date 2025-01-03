@@ -27,7 +27,7 @@ class StockService(BaseService[StockDatastore, Base]):
         stock_df = stock_df.to_dict(orient="records")
         return [StockInfo(**a) for a in stock_df]
 
-    def fetch_daily_data(self, start_date: date, end_date: Optional[date]) -> None:
+    def fetch_daily_data(self, start_date: date, end_date: Optional[date] = None) -> None:
         """抓取每日股票数据"""
 
         # 遍历获取每只股票数据

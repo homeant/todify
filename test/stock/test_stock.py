@@ -12,8 +12,7 @@ logger = logging.getLogger(__name__)
 
 def test_fetch_stock_infos(db_session: Session):
     service = get_stock_service(db_session)
-    res = service.fetch_stock_info_list()
-    logger.info(f"{res}")
+    service.fetch_daily_data(start_date=date_parse("20250103").date())
 
 
 def test_fetch_lhb_data(db_session: Session):
