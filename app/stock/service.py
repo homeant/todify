@@ -71,10 +71,10 @@ class StockService(BaseService[StockDatastore, Base]):
                         )
                     )
                 self.datastore.bulk_save(stocks)
-                from app.tasks.stock_indicator_task import calculate_indicators_task
-                calculate_indicators_task.apply_async(
-                    kwargs={"code": code, "start_date": date_format(start_date, SHORT_DATE_FORMAT)}
-                )
+                # from app.tasks.stock_indicator_task import calculate_indicators_task
+                # calculate_indicators_task.apply_async(
+                #     kwargs={"code": code, "start_date": date_format(start_date, SHORT_DATE_FORMAT)}
+                # )
             except Exception as e:
                 logger.exception(f"获取股票{code}数据失败:{str(e)}")
                 raise e

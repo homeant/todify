@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.13.1
 
 # 更新包管理器并安装 default-mysql-client
 RUN apt-get update && apt-get install -y --no-install-recommends curl default-libmysqlclient-dev build-essential pkg-config \

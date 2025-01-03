@@ -3,6 +3,7 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 
+from app.core.database import Base, engine
 from app.stock.depends import get_stock_service
 from app.stock.trade_calendar import TradeCalendar
 from app.utils.date import date_parse
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 def test_fetch_stock_infos(db_session: Session):
     service = get_stock_service(db_session)
+    Base.metadata.create_all(engine)
     service.fetch_daily_data(start_date=date_parse("20250103").date())
 
 
